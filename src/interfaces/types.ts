@@ -2,13 +2,18 @@ export interface Manufacturer {
     id: string; 
     name: string;
   }
-export interface Product {
+ export interface Product {
     id: string;
-    productNumber: string;
     name: string;
-    stock: number;
-    updatedAt: string;
-    manufacturerNumber: string;
-    manufacturer: string;
-    manufacturerId: string;
+    active: boolean;
+    description: string;
+    customSearchKeywords: string;
+    ean: string;
+    metaDescription: string;
+    metaTitle: string;
+    keywords: string;
+    categoryIds: string[];
+    productNumber: string;
+    shortText: string;
   }
+  

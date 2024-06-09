@@ -8,8 +8,7 @@ const Breadcrumbs: React.FC = () => {
 
   const breadcrumbNameMap: { [key: string]: string } = {
     "/": "Home",
-    "/catalog": "Catalog",
-    "/checkout": "Checkout",
+    "/product": "Product Detail"
   };
 
   const breadcrumbItems = [
