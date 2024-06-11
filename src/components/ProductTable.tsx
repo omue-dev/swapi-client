@@ -2,15 +2,7 @@ import React from 'react';
 import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
-interface Product {
-  id: string;
-  productNumber: string;
-  name: string;
-  stock: number;
-  updatedAt: string;
-  manufacturer: string;
-}
+import { Product } from '../interfaces/types';
 
 interface ProductTableProps {
   products: Product[];
@@ -29,8 +21,6 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, pa
   };
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'id', width: 300 },
-    { field: 'productNumber', headerName: 'Product Number', width: 150 },
     {
       field: 'name',
       headerName: 'Name',

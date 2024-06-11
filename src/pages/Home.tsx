@@ -32,6 +32,7 @@ const Home: React.FC = () => {
       }))
       .sort((a: Manufacturer, b: Manufacturer) => a.name.localeCompare(b.name));
   };
+
   // Fetcht die manufacturers vom backend
   useEffect(() => {
     const fetchManufacturers = async () => {
@@ -46,6 +47,7 @@ const Home: React.FC = () => {
 
     fetchManufacturers();
   }, [setManufacturers]);
+
   // Fetcht die InitialProducts vom backend
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,11 +69,11 @@ const Home: React.FC = () => {
             id: item.id,
             productNumber: attributes.manufacturerNumber || '',
             name: attributes.name || '',
-            stock: attributes.stock || 0,
-            updatedAt: attributes.updatedAt ? formatDate(new Date(attributes.updatedAt)) : '',
+            stock: attributes.stock !== undefined ? attributes.stock : 0, // Ensure stock is always a number
+            updatedAt: attributes.updatedAt ? formatDate(new Date(attributes.updatedAt)) : 'N/A', // Ensure updatedAt is always a string
             manufacturer: manufacturer ? manufacturer.name : 'Unknown Manufacturer',
             manufacturerId: attributes.manufacturerId || ''
-          };
+          } as Product;
         });
 
         setProducts(productsData);
