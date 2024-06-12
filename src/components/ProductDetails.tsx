@@ -1,91 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axiosInstance from '../utils/axiosInstance';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import TextField from '@mui/material/TextField';
 import { Grid, Button, Typography, FormControlLabel, Box, Checkbox, FormGroup, FormControl, FormLabel, FormHelperText } from '@mui/material';
 import { Product } from '../interfaces/types';
+import useFetchProduct from '../hooks/useFetchProduct';
+import useFetchRelatedProducts from '../hooks/useFetchRelatedProducts';
+import useUpdateProduct from '../hooks/useUpdateProduct';
 import './ProductDetails.css';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  //console.log(product);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState(false); // State für die "Select All" Checkbox
+  const [selectAll, setSelectAll] = useState(false);
+
+  const { product: productData, loading: productLoading, error: productError } = useFetchProduct(id || '');
+  const { relatedProducts, loading: relatedProductsLoading, error: relatedProductsError } = useFetchRelatedProducts(productData?.name || '');
 
   useEffect(() => {
-    if (!id) {
-      setError('No product ID provided');
-      return;
+    if (productError) {
+      setError(productError);
+    } else {
+      setProduct(productData);
     }
+  }, [productData, productError]);
 
-    const hex32Regex = /^[0-9a-f]{32}$/i;
-    if (!hex32Regex.test(id)) {
-      setError('Invalid Product ID format');
-      return;
+  useEffect(() => {
+    if (relatedProductsError) {
+      setError(relatedProductsError);
     }
+  }, [relatedProductsError]);
 
-    const fetchProduct = async () => {
-      setLoading(true);
-      try {
-        const productResponse = await axiosInstance.get(`/products/${id}`);
-        const item = productResponse.data;
-
-        const attributes = item.data.attributes ? item.data.attributes : {};
-        const customFields = attributes.customFields || {};
-        const categoryIds = attributes.categoryIds || [];
-
-        const productData: Product = {
-          id: item.data.id,
-          name: attributes.name || '',
-          active: attributes.active || false,
-          description: attributes.description || '',
-          customSearchKeywords: attributes.customSearchKeywords || '',
-          ean: attributes.ean || '',
-          metaDescription: attributes.metaDescription || '',
-          metaTitle: attributes.metaTitle || '',
-          keywords: attributes.keywords || '',
-          categoryIds: categoryIds,
-          productNumber: attributes.productNumber || '',
-          shortText: customFields.custom_add_product_attributes_short_text || '',
-          stock: attributes.stock || 0 
-        };
-
-        setProduct(productData);
-
-        // Fetch related products
-        const relatedProductsResponse = await axiosInstance.post('/relatedproducts', { productName: productData.name });
-        setRelatedProducts(relatedProductsResponse.data.relatedProducts);
-        //console.log(relatedProductsResponse.data.relatedProducts);
-      } catch (error: any) {
-        console.error('Error fetching product:', error);
-        setError(error.message || 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [id]);
+  const { updateProduct, loading: updateLoading, error: updateError, success: updateSuccess } = useUpdateProduct();
 
   const getFormData = () => {
     const id = product?.id || '';
     const description = product?.description || '';
-    const metadescription = product?.metaDescription || '';
+    const metaDescription = product?.metaDescription || '';
     const metaTitle = product?.metaTitle || '';
     const keywords = product?.keywords || '';
+    const shortText = product?.shortText || '';
 
     return {
       id,
       description,
-      metadescription,
+      metaDescription,
       metaTitle,
-      keywords
+      keywords, 
+      shortText
     };
   };
 
@@ -95,53 +60,45 @@ const ProductDetails: React.FC = () => {
       return;
     }
     const formData = getFormData();
-    console.log(selectedRelatedProducts);
-    // Iterieren Sie über die IDs der ausgewählten Artikel
-    for (const selectedId of selectedRelatedProducts) {
-      console.log("SelectedID:" + selectedId);
-      // Senden Sie die Daten an das Backend
-      const productResponse = await axiosInstance.post(`/update-products`, formData);
-      const item: { success: boolean } = productResponse.data;
-
-      // Überprüfen Sie die Antwort und handeln Sie entsprechend
-      if (item.success) {
-        // Die Daten wurden erfolgreich gespeichert
-        console.log(`Die Daten für das Produkt mit der ID ${selectedId} wurden erfolgreich gespeichert`);
-      } else {
-        // Es gab einen Fehler beim Speichern der Daten
-        console.log(`Es gab einen Fehler beim Speichern der Daten für das Produkt mit der ID ${selectedId}`);
-      }
+    console.log('Form Data:', formData);
+    console.log('Selected Related Products:', selectedRelatedProducts);
+    try {
+      setError(null);
+      await updateProduct(formData, selectedRelatedProducts);
+      console.log('Update successful');
+    } catch (err: any) {
+      console.error('Error during update:', err);
+      setError(err.message || 'Unknown error');
     }
-  }
+  };
 
   const handleAdoptContent = () => {
     const productWithDescription = relatedProducts.find((p) => p.description);
     console.log(productWithDescription);
     if (productWithDescription) {
-      setProduct(prevProduct => {
+      setProduct((prevProduct) => {
         if (!prevProduct) {
           return null;
         }
-      
         return {
           ...prevProduct,
           description: productWithDescription.description,
           metaDescription: productWithDescription.metaDescription,
           metaTitle: productWithDescription.metaTitle,
           keywords: productWithDescription.keywords,
-          shortText: productWithDescription.shortText
+          shortText: productWithDescription.shortText,
         };
-      });  
+      });
     }
   };
-  
+
   const hasContent = relatedProducts.some((p) => p.description);
 
   const handleSelectAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = event.target;
     setSelectAll(checked);
     if (checked) {
-      setSelectedRelatedProducts(relatedProducts.map((product) => product.name));
+      setSelectedRelatedProducts(relatedProducts.map((product) => product.id));
     } else {
       setSelectedRelatedProducts([]);
     }
@@ -158,23 +115,25 @@ const ProductDetails: React.FC = () => {
   };
 
   if (error) return <Typography color="error">Error: {error}</Typography>;
-  if (loading) return <Typography>Loading...</Typography>;
+  if (productLoading || relatedProductsLoading || updateLoading) return <Typography>Loading...</Typography>;
 
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h4" gutterBottom>
         {product?.name}
       </Typography>
+      {updateError && <Typography color="error">Error: {updateError}</Typography>}
+      {updateSuccess && <Typography color="success">Update Successful!</Typography>}
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
-          <TextField
-            label="Short Text"
-            multiline
-            fullWidth
-            rows={4}
-            value={product?.shortText || ''}
-          />
+            <TextField
+              label="Short Text"
+              multiline
+              fullWidth
+              rows={4}
+              value={product?.shortText || ''}
+            />
             <Box mt={2}>
               <Typography variant="h6">Description:</Typography>
               {product?.description !== null && (
@@ -192,27 +151,27 @@ const ProductDetails: React.FC = () => {
             </Box>
           </Grid>
           <Grid item xs={12} sm={4}>
-           <TextField
-            label="Meta Description"
-            multiline
-            fullWidth
-            rows={6}
-            value={product?.metaDescription} 
-          />
-          <TextField
-            label="Meta Title"
-            multiline
-            fullWidth
-            rows={3}
-            value={product?.metaTitle}
-          />
-          <TextField
-            label="Keywords"
-            multiline
-            fullWidth
-            rows={6}
-            value={product?.keywords}
-          />
+            <TextField
+              label="Meta Description"
+              multiline
+              fullWidth
+              rows={6}
+              value={product?.metaDescription}
+            />
+            <TextField
+              label="Meta Title"
+              multiline
+              fullWidth
+              rows={3}
+              value={product?.metaTitle}
+            />
+            <TextField
+              label="Keywords"
+              multiline
+              fullWidth
+              rows={6}
+              value={product?.keywords}
+            />
           </Grid>
           <Grid item xs={12} sm={4}>
             <FormControl component="fieldset">
@@ -232,10 +191,10 @@ const ProductDetails: React.FC = () => {
                     <FormControlLabel
                       control={
                         <Checkbox
-                        key={relatedProduct.id}
-                        checked={product && selectedRelatedProducts.includes(relatedProduct.id) || false}
-                        onChange={handleCheckboxChange}
-                        value={relatedProduct.id}
+                          key={relatedProduct.id}
+                          checked={product && selectedRelatedProducts.includes(relatedProduct.id) || false}
+                          onChange={handleCheckboxChange}
+                          value={relatedProduct.id}
                         />
                       }
                       label={`${relatedProduct.name}`}
