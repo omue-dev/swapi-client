@@ -11,11 +11,12 @@ import './ProductDetails.css';
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  console.log(product);
+  //console.log(product);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
+  const [selectAll, setSelectAll] = useState(false); // State für die "Select All" Checkbox
 
   useEffect(() => {
     if (!id) {
@@ -72,10 +73,46 @@ const ProductDetails: React.FC = () => {
     fetchProduct();
   }, [id]);
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Save logic here
+  const getFormData = () => {
+    const id = product?.id || '';
+    const description = product?.description || '';
+    const metadescription = product?.metaDescription || '';
+    const metaTitle = product?.metaTitle || '';
+    const keywords = product?.keywords || '';
+
+    return {
+      id,
+      description,
+      metadescription,
+      metaTitle,
+      keywords
+    };
   };
+
+  const handleSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!product) {
+      return;
+    }
+    const formData = getFormData();
+    console.log(selectedRelatedProducts);
+    // Iterieren Sie über die IDs der ausgewählten Artikel
+    for (const selectedId of selectedRelatedProducts) {
+      console.log("SelectedID:" + selectedId);
+      // Senden Sie die Daten an das Backend
+      const productResponse = await axiosInstance.post(`/update-products`, formData);
+      const item: { success: boolean } = productResponse.data;
+
+      // Überprüfen Sie die Antwort und handeln Sie entsprechend
+      if (item.success) {
+        // Die Daten wurden erfolgreich gespeichert
+        console.log(`Die Daten für das Produkt mit der ID ${selectedId} wurden erfolgreich gespeichert`);
+      } else {
+        // Es gab einen Fehler beim Speichern der Daten
+        console.log(`Es gab einen Fehler beim Speichern der Daten für das Produkt mit der ID ${selectedId}`);
+      }
+    }
+  }
 
   const handleAdoptContent = () => {
     const productWithDescription = relatedProducts.find((p) => p.description);
@@ -99,6 +136,26 @@ const ProductDetails: React.FC = () => {
   };
   
   const hasContent = relatedProducts.some((p) => p.description);
+
+  const handleSelectAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+    setSelectAll(checked);
+    if (checked) {
+      setSelectedRelatedProducts(relatedProducts.map((product) => product.name));
+    } else {
+      setSelectedRelatedProducts([]);
+    }
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value: productId, checked } = event.target;
+    console.log(productId, checked);
+    if (checked) {
+      setSelectedRelatedProducts((prevSelected) => [...prevSelected, productId]);
+    } else {
+      setSelectedRelatedProducts((prevSelected) => prevSelected.filter((id) => id !== productId));
+    }
+  };
 
   if (error) return <Typography color="error">Error: {error}</Typography>;
   if (loading) return <Typography>Loading...</Typography>;
@@ -161,13 +218,24 @@ const ProductDetails: React.FC = () => {
             <FormControl component="fieldset">
               <FormLabel component="legend">Related Products</FormLabel>
               <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectAll}
+                      onChange={handleSelectAllChange}
+                    />
+                  }
+                  label="Select All"
+                />
                 {relatedProducts.map((relatedProduct) => (
                   <Box key={relatedProduct.id} mb={2}>
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={selectedRelatedProducts.includes(relatedProduct.name)}
-                          name={relatedProduct.name}
+                        key={relatedProduct.id}
+                        checked={product && selectedRelatedProducts.includes(relatedProduct.id) || false}
+                        onChange={handleCheckboxChange}
+                        value={relatedProduct.id}
                         />
                       }
                       label={`${relatedProduct.name}`}
@@ -191,7 +259,7 @@ const ProductDetails: React.FC = () => {
             </FormControl>
           </Grid>
         </Grid>
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }} onClick={handleSave}>
           Save Changes
         </Button>
       </form>
