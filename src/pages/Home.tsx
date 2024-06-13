@@ -60,7 +60,7 @@ const Home: React.FC = () => {
           sortDirection: sortModel[0]?.sort || 'asc'
         });
         const { products, totalProducts } = productResponse.data;
-
+        console.log('products:', products);
         const productsData = products.map((item: any) => {
           const attributes = item.attributes ? item.attributes : {};
           const manufacturer = manufacturers.find(manufacturer => manufacturer.id === attributes.manufacturerId);

@@ -1,3 +1,6 @@
+import { GridPaginationModel, GridSortModel } from "@mui/x-data-grid";
+import { Dispatch, SetStateAction } from "react";
+
 export interface Manufacturer {
     id: string; 
     name: string;
@@ -21,4 +24,12 @@ export interface Manufacturer {
     manufacturer?: string;
   }
   
-  
+  export interface ProductTableProps {
+    products: Product[];
+    totalProducts: number;
+    categories: any;
+    paginationModel: GridPaginationModel;
+    setPaginationModel: Dispatch<SetStateAction<GridPaginationModel>>;
+    sortModel: GridSortModel;
+    setSortModel: Dispatch<SetStateAction<GridSortModel>>;
+  }

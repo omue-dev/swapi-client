@@ -36,9 +36,22 @@ const useUpdateProduct = () => {
       }
 
     } catch (err: any) {
-      console.error('Error during product update:', err);
-      setError(err.message || 'Unknown error');
-    } finally {
+      if (err.response) {
+          // Der Server hat geantwortet, aber der Statuscode ist nicht im Bereich von 2xx
+          console.error('Error during product update:', err.response.data);
+          console.error('Status code:', err.response.status);
+          console.error('Headers:', err.response.headers);
+          setError(`Error ${err.response.status}: ${err.response.data.message || 'Unknown error'}`);
+      } else if (err.request) {
+          // Die Anfrage wurde gesendet, aber es kam keine Antwort zurück
+          console.error('Error during product update: No response received', err.request);
+          setError('No response received from the server');
+      } else {
+          // Irgendetwas anderes verursachte den Fehler
+          console.error('Error during product update:', err.message);
+          setError(err.message || 'Unknown error');
+      }
+  } finally {
       setLoading(false);
       console.log('Update process finished');
     }
