@@ -138,12 +138,15 @@ const ProductDetails: React.FC = () => {
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value: productId, checked } = event.target;
-    if (checked) {
-      setSelectedRelatedProducts((prevSelected) => [...prevSelected, productId]);
-    } else {
-      setSelectedRelatedProducts((prevSelected) => prevSelected.filter((id) => id !== productId));
-    }
+    setSelectedRelatedProducts((prevSelected) => {
+      const updatedSelected = checked
+        ? [...prevSelected, productId]
+        : prevSelected.filter((id) => id !== productId);
+      //console.log('Selected Related Products:', updatedSelected);
+      return updatedSelected;
+    });
   };
+  
 
   const handleCategoryChange = (event: any, newValue: any) => {
     if (newValue && !selectedCategories.some(category => category.id === newValue.id)) {
@@ -183,18 +186,43 @@ const ProductDetails: React.FC = () => {
               <Typography variant="h6">Description:</Typography>
               {product?.description !== null && (
                 <CKEditor
-                  editor={ClassicEditor}
-                  data={product?.description || ''}
-                  onReady={(editor) => {}}
-                  onError={(error) => {
-                    console.error('Editor error occurred:', error);
-                  }}
-                  onChange={(event, editor) => {
-                    const data = editor.getData();
-                    setProduct(prev => ({ ...prev!, description: data }));
-                  }}
-                />
-              )}
+                editor={ClassicEditor}
+                data={product?.description || ''}
+                onReady={(editor) => {}}
+                onError={(error) => {
+                  console.error('Editor error occurred:', error);
+                }}
+                onChange={(event, editor) => {
+                  let data = editor.getData();
+              
+                  // Erzeuge ein temporäres DOM-Element zum Bearbeiten
+                  const tempDiv = document.createElement('div');
+                  tempDiv.innerHTML = data;
+              
+                  // Entferne alle id- und class-Attribute
+                  tempDiv.querySelectorAll('[id], [class]').forEach(el => {
+                    el.removeAttribute('id');
+                    el.removeAttribute('class');
+                  });
+              
+                  // Entferne alle span-Tags
+                  tempDiv.querySelectorAll('span').forEach(el => {
+                    while (el.firstChild) {
+                      if (el.parentNode) {
+                        el.parentNode.insertBefore(el.firstChild, el);
+                      }
+                    }
+                    if (el.parentNode) {
+                      el.parentNode.removeChild(el);
+                    }
+                  });
+              
+                  data = tempDiv.innerHTML;
+              
+                  setProduct(prev => ({ ...prev!, description: data }));
+                }}
+              />    
+              )}          
             </Box>
           </Grid>
           <Grid item xs={12} sm={4}>

@@ -3,6 +3,9 @@ import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../interfaces/types';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { green, red } from '@mui/material/colors';
 
 interface ProductTableProps {
   products: Product[];
@@ -11,9 +14,10 @@ interface ProductTableProps {
   setPaginationModel: (model: GridPaginationModel) => void;
   sortModel: GridSortModel;
   setSortModel: (model: GridSortModel) => void;
+  renderStatusIcon: (status: string) => React.ReactNode;
 }
 
-const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, paginationModel, setPaginationModel, sortModel, setSortModel }) => {
+const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, paginationModel, setPaginationModel, sortModel, setSortModel, renderStatusIcon }) => {
   const navigate = useNavigate();
 
   const handleProductClick = (id: string) => {
@@ -24,16 +28,24 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, pa
     {
       field: 'name',
       headerName: 'Name',
-      width: 200,
+      flex: 1,
+      minWidth: 200,
       renderCell: (params) => (
         <span onClick={() => handleProductClick(params.row.id)} style={{ cursor: 'pointer', color: 'blue' }}>
           {params.value}
         </span>
-      )
+      ),
     },
     { field: 'stock', headerName: 'Stock', width: 100 },
     { field: 'updatedAt', headerName: 'Updated At', width: 200 },
-    { field: 'manufacturer', headerName: 'Manufacturer', width: 200, sortable: false }
+    { field: 'manufacturer', headerName: 'Manufacturer', width: 200, sortable: false },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 200,
+      sortable: false,
+      renderCell: (params) => renderStatusIcon(params.value)
+    }
   ];
 
   const handlePaginationModelChange = (newModel: GridPaginationModel) => {

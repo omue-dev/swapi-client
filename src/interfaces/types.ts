@@ -22,6 +22,7 @@ export interface Manufacturer {
     stock: number;
     updatedAt?: string;
     manufacturer?: string;
+    status: string;
   }
   
   export interface ProductTableProps {
