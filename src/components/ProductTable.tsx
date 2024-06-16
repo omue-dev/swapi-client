@@ -3,9 +3,6 @@ import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../interfaces/types';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { green, red } from '@mui/material/colors';
 
 interface ProductTableProps {
   products: Product[];

@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 
 const useFetchCategories = () => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -9,8 +9,9 @@ const useFetchCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.post('/api/categories'); // Replace with actual API endpoint
-        setCategories(response.data);
+        const response = await axiosInstance.post('/categories-with-products');
+        //console.log('Categories:', response.data.categories);
+        setCategories(response.data.categories);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch categories');

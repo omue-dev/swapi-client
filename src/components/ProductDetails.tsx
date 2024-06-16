@@ -1,73 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import TextField from '@mui/material/TextField';
-import { Grid, Button, Typography, Paper, Box, Checkbox, FormControlLabel, FormGroup, FormControl, FormLabel, FormHelperText, Autocomplete } from '@mui/material';
-import { Product } from '../interfaces/types';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
+import ProductDescription from './common/ProductDescription';
+import MetaDataFields from './common/MetaDataFields';
+import RelatedProducts from './common/RelatedProducts';
+import { Product, Category } from '../interfaces/types';
 import useFetchProduct from '../hooks/useFetchProduct';
 import useFetchRelatedProducts from '../hooks/useFetchRelatedProducts';
 import useUpdateProduct from '../hooks/useUpdateProduct';
-import axiosInstance from '../utils/axiosInstance';
+import useFetchCategories from '../hooks/useFetchCategories';
 import './ProductDetails.css';
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
+import CategorySelector from './common/CategorySelector';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<{ id: string, name: string } | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<{ id: string, name: string }[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
 
+  const { categories } = useFetchCategories();
   const { product: productData, loading: productLoading, error: productError } = useFetchProduct(id || '');
   const { relatedProducts, loading: relatedProductsLoading, error: relatedProductsError } = useFetchRelatedProducts(productData?.name || '');
-
-  useEffect(() => {
-    if (productError) {
-      setError(productError);
-    } else {
-      setProduct(productData);
-      //console.log('Product Data:', productData);
-      if (productData && productData.categoryIds) {
-        const categoriesToSet = productData.categoryIds.map((id: string) => categories.find(category => category.id === id)).filter(category => category !== undefined) as { id: string, name: string }[];
-        setSelectedCategories(categoriesToSet);
-      }
-    }
-  }, [productData, productError, categories]);
-
-  useEffect(() => {
-    if (relatedProductsError) {
-      setError(relatedProductsError);
-    }
-  }, [relatedProductsError]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axiosInstance.post('/categories');
-        console.log('Categories:', response.data);
-        setCategories(response.data);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
   const { updateProduct, loading: updateLoading, error: updateError, success: updateSuccess } = useUpdateProduct();
 
+  useEffect(() => {
+    if (productError) setError(productError);
+    else setProduct(productData);
+  }, [productData, productError]);
+
+  useEffect(() => {
+    if (productData && productData.categoryIds) {
+      const categoriesToSet = productData.categoryIds
+        .map((id: string) => categories.find(category => category.id === id))
+        .filter(category => category !== undefined) as Category[];
+      setSelectedCategories(categoriesToSet);
+    }
+  }, [productData, categories]);
+
+  useEffect(() => {
+    if (relatedProductsError) setError(relatedProductsError);
+  }, [relatedProductsError]);
+
   const getFormData = () => {
-    const id = product?.id || '';
-    const description = product?.description || '';
-    const metaDescription = product?.metaDescription || '';
-    const metaTitle = product?.metaTitle || '';
-    const keywords = product?.keywords || '';
-    const shortText = product?.shortText || '';
+    const { id = '', description = '', metaDescription = '', metaTitle = '', keywords = '', shortText = '' } = product || {};
     const categoryIds = selectedCategories.map(category => category.id);
 
     return {
@@ -77,269 +58,109 @@ const ProductDetails: React.FC = () => {
       metaTitle,
       keywords,
       categoryIds,
-      customFields: {
-        custom_add_product_attributes_short_text: shortText
-      },
+      customFields: { custom_add_product_attributes_short_text: shortText },
     };
   };
 
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!product) {
-      return;
-    }
+    if (!product) return;
     const formData = getFormData();
-    console.log('Form Data:', formData);
-    console.log('Selected Related Products:', selectedRelatedProducts);
+
     try {
       setError(null);
-      await updateProduct(formData, selectedRelatedProducts);
-      console.log('Update successful');
+      await updateProduct(formData, selectedRelatedProducts, () => {
+        setSnackbarMessage('Update Successful!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+        setTimeout(() => {
+          navigate('/');
+        }, 500);
+      });
     } catch (err: any) {
-      console.error('Error during update:', err);
       setError(err.message || 'Unknown error');
     }
   };
 
-  const handleAdoptContent = () => {
-    const productWithDescription = relatedProducts.find((p) => p.description);
-    console.log(productWithDescription);
+  const handleAdoptContent = useCallback(() => {
+    const productWithDescription = relatedProducts.find(p => p.description);
     if (productWithDescription) {
-      setProduct((prevProduct) => {
-        if (!prevProduct) {
-          return null;
-        }
-        return {
-          ...prevProduct,
-          description: productWithDescription.description,
-          metaDescription: productWithDescription.metaDescription,
-          metaTitle: productWithDescription.metaTitle,
-          keywords: productWithDescription.keywords,
-          shortText: productWithDescription.shortText,
-        };
+      setProduct(prevProduct => {
+        if (!prevProduct) return null;
+        return { ...prevProduct, ...productWithDescription };
       });
-
-      const categoryIds = productWithDescription.categoryIds;
-      const selected = categories.filter(category => categoryIds.includes(category.id));
-      setSelectedCategories(prevSelectedCategories => [...prevSelectedCategories, ...selected]);    }
-  };
-
-  const hasContent = relatedProducts.some((p) => p.description);
-
-  const handleSelectAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target;
-    setSelectAll(checked);
-    if (checked) {
-      setSelectedRelatedProducts(relatedProducts.map((product) => product.id));
-    } else {
-      setSelectedRelatedProducts([]);
+      setSelectedCategories(prevSelectedCategories => [
+        ...prevSelectedCategories,
+        ...categories.filter(category => productWithDescription.categoryIds.includes(category.id))
+      ]);
     }
-  };
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value: productId, checked } = event.target;
-    setSelectedRelatedProducts((prevSelected) => {
-      const updatedSelected = checked
-        ? [...prevSelected, productId]
-        : prevSelected.filter((id) => id !== productId);
-      //console.log('Selected Related Products:', updatedSelected);
-      return updatedSelected;
-    });
-  };
-  
+  }, [relatedProducts, categories]);
 
   const handleCategoryChange = (event: any, newValue: any) => {
     if (newValue && !selectedCategories.some(category => category.id === newValue.id)) {
       setSelectedCategories([...selectedCategories, newValue]);
     }
-    setSelectedCategory(newValue);
   };
 
   const handleDeleteCategory = (id: string) => {
-    setSelectedCategories((prevSelected) =>
-      prevSelected.filter((category) => category.id !== id)
-    );
+    setSelectedCategories(prevSelected => prevSelected.filter(category => category.id !== id));
+  };
+
+  useEffect(() => {
+    if (updateError) {
+      setSnackbarMessage(updateError);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  }, [updateError]);
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   if (error) return <Typography color="error">Error: {error}</Typography>;
-  if (productLoading || relatedProductsLoading || updateLoading) return <Typography>Loading...</Typography>;
+  if (productLoading || relatedProductsLoading) return <Typography>Loading...</Typography>;
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h4" gutterBottom>
-        {product?.name}
-      </Typography>
-      {updateError && <Typography color="error">Error: {updateError}</Typography>}
-      {updateSuccess && <Typography color="success">Update Successful!</Typography>}
+      <Typography variant="h4" gutterBottom>{product?.name}</Typography>
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
-            <TextField
-              label="Short Text"
-              multiline
-              fullWidth
-              rows={4}
-              value={product?.shortText || ''}
-              onChange={(e) => setProduct(prev => ({ ...prev!, shortText: e.target.value }))}
-            />
-            <Box mt={2}>
-              <Typography variant="h6">Description:</Typography>
-              {product?.description !== null && (
-                <CKEditor
-                editor={ClassicEditor}
-                data={product?.description || ''}
-                onReady={(editor) => {}}
-                onError={(error) => {
-                  console.error('Editor error occurred:', error);
-                }}
-                onChange={(event, editor) => {
-                  let data = editor.getData();
-              
-                  // Erzeuge ein temporäres DOM-Element zum Bearbeiten
-                  const tempDiv = document.createElement('div');
-                  tempDiv.innerHTML = data;
-              
-                  // Entferne alle id- und class-Attribute
-                  tempDiv.querySelectorAll('[id], [class]').forEach(el => {
-                    el.removeAttribute('id');
-                    el.removeAttribute('class');
-                  });
-              
-                  // Entferne alle span-Tags
-                  tempDiv.querySelectorAll('span').forEach(el => {
-                    while (el.firstChild) {
-                      if (el.parentNode) {
-                        el.parentNode.insertBefore(el.firstChild, el);
-                      }
-                    }
-                    if (el.parentNode) {
-                      el.parentNode.removeChild(el);
-                    }
-                  });
-              
-                  data = tempDiv.innerHTML;
-              
-                  setProduct(prev => ({ ...prev!, description: data }));
-                }}
-              />    
-              )}          
-            </Box>
+            <ProductDescription product={product} setProduct={setProduct} />
           </Grid>
           <Grid item xs={12} sm={4}>
-            <TextField
-              label="Meta Description"
-              multiline
-              fullWidth
-              rows={6}
-              value={product?.metaDescription}
-              onChange={(e) => setProduct(prev => ({ ...prev!, metaDescription: e.target.value }))}
-            />
-            <TextField
-              label="Meta Title"
-              multiline
-              fullWidth
-              rows={3}
-              value={product?.metaTitle}
-              onChange={(e) => setProduct(prev => ({ ...prev!, metaTitle: e.target.value }))}
-            />
-            <TextField
-              label="Keywords"
-              multiline
-              fullWidth
-              rows={6}
-              value={product?.keywords}
-              onChange={(e) => setProduct(prev => ({ ...prev!, keywords: e.target.value }))}
-            />
-            <Autocomplete
-              options={categories}
-              getOptionLabel={(option) => option.name}
-              onChange={handleCategoryChange}
-              renderOption={(props, option) => (
-                <li {...props} key={option.id}>
-                  {option.name}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="Select Category" variant="outlined" fullWidth />
-              )}
-            />
-            {selectedCategories.length > 0 && (
-              <Box mt={2}>
-                <FormHelperText>Selected Categories:</FormHelperText>
-                {selectedCategories.map((category) => (
-                  <Paper 
-                    key={category.id} 
-                    elevation={2} 
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      padding: '8px', 
-                      marginBottom: '8px' 
-                    }}
-                  >
-                    <Typography variant="body1" sx={{ flexGrow: 1 }}>
-                      {category.name} 
-                    </Typography>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => handleDeleteCategory(category.id)}
-                    >
-                      <DeleteIcon color="error" />
-                    </IconButton>
-                  </Paper>
-                ))}
-              </Box>
+            <MetaDataFields product={product} setProduct={setProduct} />
+            {Array.isArray(categories) && (
+              <CategorySelector
+                categories={categories}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                handleCategoryChange={handleCategoryChange}
+                handleDeleteCategory={handleDeleteCategory}
+              />
             )}
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Related Products</FormLabel>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectAll}
-                      onChange={handleSelectAllChange}
-                    />
-                  }
-                  label="Select All"
-                />
-                {relatedProducts.map((relatedProduct) => (
-                  <Box key={relatedProduct.id} mb={2}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          key={relatedProduct.id}
-                          checked={product && selectedRelatedProducts.includes(relatedProduct.id) || false}
-                          onChange={handleCheckboxChange}
-                          value={relatedProduct.id}
-                        />
-                      }
-                      label={`${relatedProduct.name}`}
-                    />
-                  </Box>
-                ))}
-              </FormGroup>
-              <FormHelperText>Select related products</FormHelperText>
-              {hasContent && (
-                <Box mt={2}>
-                  <Typography variant="body1">Es sind bereits Inhalte vorhanden.</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleAdoptContent}
-                  >
-                    Inhalte übernehmen
-                  </Button>
-                </Box>
-              )}
-            </FormControl>
+            <RelatedProducts
+              relatedProducts={relatedProducts}
+              selectedRelatedProducts={selectedRelatedProducts}
+              setSelectedRelatedProducts={setSelectedRelatedProducts}
+              selectAll={selectAll}
+              setSelectAll={setSelectAll}
+              handleAdoptContent={handleAdoptContent}
+            />
           </Grid>
         </Grid>
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-          Save Changes
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }} disabled={updateLoading}>
+          {updateLoading ? <CircularProgress size={24} /> : 'Save Changes'}
         </Button>
       </form>
+      <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={500} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

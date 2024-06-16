@@ -34,3 +34,8 @@ export interface Manufacturer {
     sortModel: GridSortModel;
     setSortModel: Dispatch<SetStateAction<GridSortModel>>;
   }
+  
+  export interface Category {
+    id: string;
+    name: string;
+  }

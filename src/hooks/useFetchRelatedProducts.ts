@@ -11,7 +11,7 @@ const useFetchRelatedProducts = (productName: string) => {
     if (productName) {
     const fetchRelatedProducts = async () => {
       try {
-        const response = await axiosInstance.post('/relatedproducts', { productName });
+        const response = await axiosInstance.post('/related-products', { productName });
         setRelatedProducts(response.data.relatedProducts);
       } catch (err: unknown) {
         if (err instanceof Error) {
