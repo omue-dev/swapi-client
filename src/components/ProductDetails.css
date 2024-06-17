@@ -1,4 +1,18 @@
 .MuiFormControl-fullWidth {
     margin: 10px 0!important;
   }
-  
+  /* ProductDetails.css */
+.sticky-save-button {
+  position: fixed;
+  bottom: 0;
+  right:0;
+  width: 200px;
+  padding: 10px 0;
+  display: flex;
+  justify-content: right;
+  z-index: 1000;
+}
+
+.content-with-sticky-button {
+  padding-bottom: 60px; /* Adjust according to the button's height and padding */
+}

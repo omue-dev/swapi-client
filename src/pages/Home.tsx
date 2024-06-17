@@ -71,20 +71,26 @@ const Home: React.FC = () => {
         <>
           <Typography variant="body1">{logMessage}</Typography>
           <ProductTable
-            products={products}
-            totalProducts={totalProducts}
-            paginationModel={paginationModel}
-            setPaginationModel={setPaginationModel}
-            sortModel={sortModel}
-            setSortModel={setSortModel}
-            renderStatusIcon={(status: string) => {
-              return status === 'Active' ? (
-                <CheckCircleIcon style={{ color: green[500] }} />
-              ) : (
-                <CancelIcon style={{ color: red[500] }} />
-              );
-            }}
-          />
+                products={products}
+                totalProducts={totalProducts}
+                paginationModel={paginationModel}
+                setPaginationModel={setPaginationModel}
+                sortModel={sortModel}
+                setSortModel={setSortModel}
+                renderStatusIcon={(status: string) => {
+                  return status === 'Active' ? (
+                    <CheckCircleIcon style={{ color: green[500] }} />
+                  ) : (
+                    <CancelIcon style={{ color: red[500] }} />
+                  );
+                } }
+                renderProcessedIcon={(processed: boolean) => {
+                  return processed === true ? (
+                    <CheckCircleIcon style={{ color: green[500] }} />
+                  ) : (
+                    <CancelIcon style={{ color: red[500] }} />
+                  );
+                } } categories={undefined}          />
         </>
       )}
     </Container>

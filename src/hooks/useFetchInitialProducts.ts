@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Product } from '../interfaces/types';
-import { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
+import { GridPaginationModel, GridSortModel, GridFilterModel } from '@mui/x-data-grid';
 import useFetchManufacturers from './useFetchManufacturers';
 
 const useFetchInitialProducts = (initialSearchTerm: string = "") => {
@@ -13,6 +13,7 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ pageSize: 10, page: 0 });
   const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'name', sort: 'asc' }]);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
   const [logMessage, setLogMessage] = useState<string>("");
 
   const fetchInitialProducts = useCallback(async (search: string = "") => {
@@ -25,9 +26,11 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
         limit: paginationModel.pageSize,
         sortField: sortModel[0]?.field || 'name',
         sortDirection: sortModel[0]?.sort || 'asc',
+        filters: filterModel.items, // Add filters to request payload
       });
       const { products, totalProducts, log } = response.data;
       setLogMessage(log);
+
       const productsData = products.map((item: any) => {
         const attributes = item.attributes || {};
         const manufacturer = manufacturers.find(manufacturer => manufacturer.id === attributes.manufacturerId);
@@ -40,7 +43,14 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
           updatedAt: attributes.updatedAt ? new Date(attributes.updatedAt).toLocaleDateString() : 'N/A',
           manufacturer: manufacturer ? manufacturer.name : 'Unknown Manufacturer',
           manufacturerId: attributes.manufacturerId || '',
-          status: attributes.active ? 'Active' : 'Inactive'
+          status: attributes.active ? 'Active' : 'Inactive',
+          hasContent: Boolean(
+            attributes.description ||
+            attributes.metaDescription ||
+            attributes.metaTitle ||
+            attributes.keywords ||
+            attributes.customFields?.custom_add_product_attributes_short_text
+          )
         } as Product;
       });
       setProducts(productsData);
@@ -50,13 +60,13 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel, sortModel, manufacturers]);
+  }, [paginationModel, sortModel, filterModel, manufacturers]);
 
   useEffect(() => {
     if (!manufacturersLoading) {
       fetchInitialProducts(searchTerm);
     }
-  }, [fetchInitialProducts, searchTerm, manufacturersLoading]);
+  }, [fetchInitialProducts, searchTerm, manufacturersLoading, paginationModel, sortModel, filterModel]);
 
   return {
     products,
@@ -70,6 +80,8 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
     setSortModel,
     searchTerm,
     setSearchTerm,
+    filterModel,
+    setFilterModel,
     fetchInitialProducts
   };
 };

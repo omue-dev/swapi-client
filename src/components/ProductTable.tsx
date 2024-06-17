@@ -2,21 +2,10 @@ import React from 'react';
 import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Product } from '../interfaces/types';
+import { ProductTableProps } from '../interfaces/types';
 
-interface ProductTableProps {
-  products: Product[];
-  totalProducts: number;
-  paginationModel: GridPaginationModel;
-  setPaginationModel: (model: GridPaginationModel) => void;
-  sortModel: GridSortModel;
-  setSortModel: (model: GridSortModel) => void;
-  renderStatusIcon: (status: string) => React.ReactNode;
-}
-
-const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, paginationModel, setPaginationModel, sortModel, setSortModel, renderStatusIcon }) => {
+const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, paginationModel, setPaginationModel, sortModel, setSortModel, renderStatusIcon, renderProcessedIcon }) => {
   const navigate = useNavigate();
-
   const handleProductClick = (id: string) => {
     navigate(`/product/${id}`);
   };
@@ -42,6 +31,12 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, pa
       width: 200,
       sortable: false,
       renderCell: (params) => renderStatusIcon(params.value)
+    },
+    { field: 'hasContent',
+      headerName: 'processed',
+      width: 200,
+      sortable: false,
+      renderCell: (params) => renderProcessedIcon(params.value)
     }
   ];
 
@@ -62,7 +57,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, pa
         rowCount={totalProducts}
         paginationMode="server"
         onPaginationModelChange={handlePaginationModelChange}
-        pageSizeOptions={[10, 25, 50]}
+        pageSizeOptions={[10, 25, 50, 100]}
         sortModel={sortModel}
         onSortModelChange={handleSortModelChange}
       />

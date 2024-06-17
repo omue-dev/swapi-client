@@ -23,6 +23,7 @@ export interface Manufacturer {
     updatedAt?: string;
     manufacturer?: string;
     status: string;
+    hasContent: boolean;
   }
   
   export interface ProductTableProps {
@@ -33,9 +34,16 @@ export interface Manufacturer {
     setPaginationModel: Dispatch<SetStateAction<GridPaginationModel>>;
     sortModel: GridSortModel;
     setSortModel: Dispatch<SetStateAction<GridSortModel>>;
+    renderStatusIcon: (status: string) => React.ReactNode;
+    renderProcessedIcon: (hasContent: boolean) => React.ReactNode;
   }
   
   export interface Category {
     id: string;
     name: string;
+  }
+
+  export interface FeaureSet {
+    id: string;
+    name: string; 
   }

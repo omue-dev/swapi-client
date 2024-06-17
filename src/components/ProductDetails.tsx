@@ -152,15 +152,12 @@ const ProductDetails: React.FC = () => {
             />
           </Grid>
         </Grid>
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }} disabled={updateLoading}>
+      <Box className="sticky-save-button">
+        <Button type="submit" variant="contained" color="primary" onClick={handleSave} disabled={updateLoading}>
           {updateLoading ? <CircularProgress size={24} /> : 'Save Changes'}
         </Button>
+      </Box>       
       </form>
-      <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={snackbarOpen} autoHideDuration={500} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

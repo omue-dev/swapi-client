@@ -31,7 +31,8 @@ const useFetchProduct = (id: string) => {
           productNumber: attributes.productNumber || '',
           shortText: customFields.custom_add_product_attributes_short_text || '',
           stock: attributes.stock || 0,
-          status: ''
+          status: '',
+          hasContent: false,
         };
 
         setProduct(productData);
