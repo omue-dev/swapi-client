@@ -35,6 +35,17 @@ const Navbar: React.FC<NavbarProps> = ({ isDarkMode, toggleDarkMode }) => {
             Home
           </Button>
         </div>
+        <div>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/orders"
+            style={{ marginRight: 16 }}
+            variant={location.pathname === '/orders' ? 'outlined' : 'text'}
+          >
+            Home
+          </Button>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <IconButton color="inherit">
             <LightModeIcon />
