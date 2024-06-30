@@ -4,13 +4,11 @@ import { Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from
 import ProductDescription from './common/ProductDescription';
 import MetaDataFields from './common/MetaDataFields';
 import RelatedProducts from './common/RelatedProducts';
-import { Product, Category } from '../interfaces/types';
+import { Product } from '../interfaces/types';
 import useFetchProduct from '../hooks/useFetchProduct';
 import useFetchRelatedProducts from '../hooks/useFetchRelatedProducts';
 import useUpdateProduct from '../hooks/useUpdateProduct';
-import useFetchCategories from '../hooks/useFetchCategories';
 import './ProductDetails.css';
-import CategorySelector from './common/CategorySelector';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,12 +17,10 @@ const ProductDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
 
-  const { categories } = useFetchCategories();
   const { product: productData, loading: productLoading, error: productError } = useFetchProduct(id || '');
   const { relatedProducts, loading: relatedProductsLoading, error: relatedProductsError } = useFetchRelatedProducts(productData?.name || '');
   const { updateProduct, loading: updateLoading, error: updateError, success: updateSuccess } = useUpdateProduct();
@@ -35,21 +31,11 @@ const ProductDetails: React.FC = () => {
   }, [productData, productError]);
 
   useEffect(() => {
-    if (productData && productData.categoryIds) {
-      const categoriesToSet = productData.categoryIds
-        .map((id: string) => categories.find(category => category.id === id))
-        .filter(category => category !== undefined) as Category[];
-      setSelectedCategories(categoriesToSet);
-    }
-  }, [productData, categories]);
-
-  useEffect(() => {
     if (relatedProductsError) setError(relatedProductsError);
   }, [relatedProductsError]);
 
-  const getFormData = () => {
+  const getFormData = (product: Product) => {
     const { id = '', description = '', metaDescription = '', metaTitle = '', keywords = '', shortText = '' } = product || {};
-    const categoryIds = selectedCategories.map(category => category.id);
 
     return {
       id,
@@ -57,7 +43,6 @@ const ProductDetails: React.FC = () => {
       metaDescription,
       metaTitle,
       keywords,
-      categoryIds,
       customFields: { custom_add_product_attributes_short_text: shortText },
     };
   };
@@ -65,18 +50,21 @@ const ProductDetails: React.FC = () => {
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!product) return;
-    const formData = getFormData();
+    const formData = getFormData(product);
+
+    const relatedProductsData = selectedRelatedProducts;
 
     try {
       setError(null);
-      await updateProduct(formData, selectedRelatedProducts, () => {
-        setSnackbarMessage('Update Successful!');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
-        setTimeout(() => {
-          navigate('/');
-        }, 500);
-      });
+      await updateProduct(
+        formData,
+        relatedProductsData,
+        () => {
+          setSnackbarMessage('Update Successful!');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        }
+      );
     } catch (err: any) {
       setError(err.message || 'Unknown error');
     }
@@ -89,22 +77,8 @@ const ProductDetails: React.FC = () => {
         if (!prevProduct) return null;
         return { ...prevProduct, ...productWithDescription };
       });
-      setSelectedCategories(prevSelectedCategories => [
-        ...prevSelectedCategories,
-        ...categories.filter(category => productWithDescription.categoryIds.includes(category.id))
-      ]);
     }
-  }, [relatedProducts, categories]);
-
-  const handleCategoryChange = (event: any, newValue: any) => {
-    if (newValue && !selectedCategories.some(category => category.id === newValue.id)) {
-      setSelectedCategories([...selectedCategories, newValue]);
-    }
-  };
-
-  const handleDeleteCategory = (id: string) => {
-    setSelectedCategories(prevSelected => prevSelected.filter(category => category.id !== id));
-  };
+  }, [relatedProducts]);
 
   useEffect(() => {
     if (updateError) {
@@ -120,28 +94,19 @@ const ProductDetails: React.FC = () => {
 
   if (error) return <Typography color="error">Error: {error}</Typography>;
   if (productLoading || relatedProductsLoading) return <Typography>Loading...</Typography>;
+  
+  const productName = product?.name.split(',')[0] || '';
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h4" gutterBottom>{product?.name}</Typography>
+      <Typography variant="h4" gutterBottom>{productName}</Typography>
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <ProductDescription product={product} setProduct={setProduct} />
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <MetaDataFields product={product} setProduct={setProduct} />
-            {Array.isArray(categories) && (
-              <CategorySelector
-                categories={categories}
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                handleCategoryChange={handleCategoryChange}
-                handleDeleteCategory={handleDeleteCategory}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
+          {relatedProducts.length > 1  && (
             <RelatedProducts
               relatedProducts={relatedProducts}
               selectedRelatedProducts={selectedRelatedProducts}
@@ -150,14 +115,21 @@ const ProductDetails: React.FC = () => {
               setSelectAll={setSelectAll}
               handleAdoptContent={handleAdoptContent}
             />
+          )}
+            <MetaDataFields product={product} setProduct={setProduct} />
           </Grid>
         </Grid>
-      <Box className="sticky-save-button">
-        <Button type="submit" variant="contained" color="primary" onClick={handleSave} disabled={updateLoading}>
-          {updateLoading ? <CircularProgress size={24} /> : 'Save Changes'}
-        </Button>
-      </Box>       
+        <Box className="sticky-save-button">
+          <Button type="submit" variant="contained" color="primary" onClick={handleSave} disabled={updateLoading}>
+            {updateLoading ? <CircularProgress size={24} /> : 'Save Changes'}
+          </Button>
+        </Box>       
       </form>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

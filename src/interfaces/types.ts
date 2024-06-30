@@ -29,13 +29,13 @@ export interface Manufacturer {
   export interface ProductTableProps {
     products: Product[];
     totalProducts: number;
-    categories: any;
     paginationModel: GridPaginationModel;
-    setPaginationModel: Dispatch<SetStateAction<GridPaginationModel>>;
+    setPaginationModel: (model: GridPaginationModel) => void;
     sortModel: GridSortModel;
-    setSortModel: Dispatch<SetStateAction<GridSortModel>>;
-    renderStatusIcon: (status: string) => React.ReactNode;
-    renderProcessedIcon: (hasContent: boolean) => React.ReactNode;
+    setSortModel: (model: GridSortModel) => void;
+    renderStatusIcon: (status: string) => JSX.Element;
+    renderProcessedIcon: (processed: boolean) => JSX.Element;
+    onManufacturerClick: (manufacturerId: string) => void;
   }
   
   export interface Category {
@@ -47,3 +47,4 @@ export interface Manufacturer {
     id: string;
     name: string; 
   }
+  

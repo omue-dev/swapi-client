@@ -8,7 +8,7 @@ const useUpdateProduct = () => {
 
   const updateProduct = async (
     formData: any,
-    selectedRelatedProducts: string[],
+    relatedProductsData: any[],
     onSuccess?: (updatedProduct: any) => void
   ) => {
     setLoading(true);
@@ -16,15 +16,34 @@ const useUpdateProduct = () => {
       setError(null);
       setSuccess(false);
 
-      // Update the product
-      const productResponse = await axiosInstance.post(`/update-product`, formData);
-      const item: { success: boolean, updatedProduct: any } = productResponse.data;
+      if (!relatedProductsData || relatedProductsData.length === 0) {
+        // Update the main product
+        const productResponse = await axiosInstance.post('/update-main-product', formData);
+        const item: { success: boolean, updatedProduct: any } = productResponse.data;
 
-      if (item.success) {
-        setSuccess(true);
-        if (onSuccess) onSuccess(item.updatedProduct);
+        if (item.success) {
+          setSuccess(true);
+          if (onSuccess) onSuccess(item.updatedProduct);
+        } else {
+          setError('Error updating product');
+        }
       } else {
-        setError('Error updating product');
+        // Update related products
+        const updateData = {
+          'ids': relatedProductsData,
+          'formData': formData
+        };
+
+        try {
+          console.log('updateData:', updateData);
+          await axiosInstance.post('/update-related-products', updateData);
+          // ich muss zuerst die id's und dann die formData übergeben.
+          setSuccess(true);
+          if (onSuccess) onSuccess(formData);
+        } catch (error) {
+          console.error('Error updating related products:', error);
+          setError('Error updating related products');
+        }
       }
     } catch (err: any) {
       if (err.response) {

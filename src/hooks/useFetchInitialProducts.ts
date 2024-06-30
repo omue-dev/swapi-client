@@ -14,22 +14,36 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
   const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'name', sort: 'asc' }]);
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
-  const [logMessage, setLogMessage] = useState<string>("");
+  const [manufacturerIdFilter, setManufacturerIdFilter] = useState<string | null>(null);
 
   const fetchInitialProducts = useCallback(async (search: string = "") => {
     setLoading(true);
     try {
       const endpoint = search ? '/search-products' : '/products';
+      /*console.log("Fetching products with filters:", {
+        searchTerm: search,
+        page: paginationModel.page + 1,
+        limit: paginationModel.pageSize,
+        sortField: sortModel[0]?.field || 'name',
+        sortDirection: sortModel[0]?.sort || 'asc',
+        filters: filterModel.items,
+        manufacturerId: manufacturerIdFilter,
+      });
+      */
+
       const response = await axiosInstance.post(endpoint, {
         searchTerm: search,
         page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
         sortField: sortModel[0]?.field || 'name',
         sortDirection: sortModel[0]?.sort || 'asc',
-        filters: filterModel.items, // Add filters to request payload
+        filters: filterModel.items,
+        manufacturerId: manufacturerIdFilter, // Add this line
       });
-      const { products, totalProducts, log } = response.data;
-      setLogMessage(log);
+
+      //console.log("API response:", response.data);
+
+      const { products, totalProducts } = response.data;
 
       const productsData = products.map((item: any) => {
         const attributes = item.attributes || {};
@@ -53,27 +67,28 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
           )
         } as Product;
       });
+
       setProducts(productsData);
       setTotalProducts(parseInt(totalProducts, 10));
     } catch (error) {
       setError(error instanceof Error ? error : new Error('Unknown error'));
+      console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
     }
-  }, [paginationModel, sortModel, filterModel, manufacturers]);
+  }, [paginationModel, sortModel, filterModel, manufacturers, manufacturerIdFilter]);
 
   useEffect(() => {
     if (!manufacturersLoading) {
       fetchInitialProducts(searchTerm);
     }
-  }, [fetchInitialProducts, searchTerm, manufacturersLoading, paginationModel, sortModel, filterModel]);
+  }, [fetchInitialProducts, searchTerm, manufacturersLoading, paginationModel, sortModel, filterModel, manufacturerIdFilter]); // Add manufacturerIdFilter to dependencies
 
   return {
     products,
     totalProducts,
     loading: loading || manufacturersLoading,
     error,
-    logMessage,
     paginationModel,
     setPaginationModel,
     sortModel,
@@ -82,6 +97,7 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
     setSearchTerm,
     filterModel,
     setFilterModel,
+    setManufacturerIdFilter, // Add this line
     fetchInitialProducts
   };
 };

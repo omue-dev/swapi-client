@@ -4,7 +4,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { sanitizeDescription } from '../../utils/utils';
 import { Product } from '../../interfaces/types';
 import TextField from '@mui/material/TextField';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 interface ProductDescriptionProps {
   product: Product | null;
@@ -14,7 +14,14 @@ interface ProductDescriptionProps {
 const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setProduct }) => {
   return (
     <Box mt={2}>
-      <Typography variant="h6">Description:</Typography>
+       <TextField
+        label="Short Text"
+        multiline
+        fullWidth
+        rows={4}
+        value={product?.shortText || ''}
+        onChange={(e) => setProduct(prev => ({ ...prev!, shortText: e.target.value }))}
+      />
       {product?.description !== null && (
         <CKEditor
           editor={ClassicEditor}
@@ -26,14 +33,6 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
           }}
         />
       )}
-      <TextField
-        label="Short Text"
-        multiline
-        fullWidth
-        rows={4}
-        value={product?.shortText || ''}
-        onChange={(e) => setProduct(prev => ({ ...prev!, shortText: e.target.value }))}
-      />
     </Box>
   );
 };

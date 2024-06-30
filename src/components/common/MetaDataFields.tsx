@@ -11,20 +11,20 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({ product, setProduct }) 
   return (
     <>
       <TextField
-        label="Meta Description"
-        multiline
-        fullWidth
-        rows={6}
-        value={product?.metaDescription || ''}
-        onChange={(e) => setProduct(prev => ({ ...prev!, metaDescription: e.target.value }))}
-      />
-      <TextField
         label="Meta Title"
         multiline
         fullWidth
         rows={3}
         value={product?.metaTitle || ''}
         onChange={(e) => setProduct(prev => ({ ...prev!, metaTitle: e.target.value }))}
+      />
+      <TextField
+        label="Meta Description"
+        multiline
+        fullWidth
+        rows={6}
+        value={product?.metaDescription || ''}
+        onChange={(e) => setProduct(prev => ({ ...prev!, metaDescription: e.target.value }))}
       />
       <TextField
         label="Keywords"

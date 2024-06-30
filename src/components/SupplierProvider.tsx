@@ -19,9 +19,8 @@ export const SupplierProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [suppliers, setSuppliers] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
-        // Mock die Lieferantendaten
         setSuppliers(mockSuppliers);
-        console.log('Loaded suppliers:', mockSuppliers); // Log the suppliers dictionary
+        //console.log('Loaded suppliers:', mockSuppliers); // Log the suppliers dictionary
     }, []);
 
     return (

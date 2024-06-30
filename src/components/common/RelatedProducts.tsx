@@ -1,5 +1,6 @@
 import React from 'react';
-import { FormControl, FormLabel, FormGroup, FormControlLabel, Checkbox, Box, Typography, Button } from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup, Typography, Button, Box } from '@mui/material';
+import DescriptionIcon from '@mui/icons-material/Description'; // Import des Icons
 import { Product } from '../../interfaces/types';
 
 interface RelatedProductsProps {
@@ -9,6 +10,7 @@ interface RelatedProductsProps {
   selectAll: boolean;
   setSelectAll: React.Dispatch<React.SetStateAction<boolean>>;
   handleAdoptContent: () => void;
+  horizontal?: boolean; // neue optionale Eigenschaft für horizontale Ausrichtung
 }
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({
@@ -17,51 +19,50 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
   setSelectedRelatedProducts,
   selectAll,
   setSelectAll,
-  handleAdoptContent
+  handleAdoptContent,
+  horizontal = false, // Standardwert ist false
 }) => {
   const handleSelectAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target;
-    setSelectAll(checked);
-    setSelectedRelatedProducts(checked ? relatedProducts.map(product => product.id) : []);
+    if (event.target.checked) {
+      setSelectedRelatedProducts(relatedProducts.map(p => p.id));
+    } else {
+      setSelectedRelatedProducts([]);
+    }
+    setSelectAll(event.target.checked);
   };
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value: productId, checked } = event.target;
+  const handleProductChange = (id: string) => {
     setSelectedRelatedProducts(prevSelected =>
-      checked ? [...prevSelected, productId] : prevSelected.filter(id => id !== productId)
+      prevSelected.includes(id) ? prevSelected.filter(pid => pid !== id) : [...prevSelected, id]
     );
   };
 
   return (
-    <FormControl component="fieldset">
-      <FormLabel component="legend">Related Products</FormLabel>
-      <FormGroup>
+    <div style={{ display: horizontal ? 'flex' : 'block', alignItems: 'center', border: '1px dashed #333', padding: '20px' }}>
+      <FormGroup row={horizontal}>
         <FormControlLabel
           control={<Checkbox checked={selectAll} onChange={handleSelectAllChange} />}
           label="Select All"
         />
-        {relatedProducts.map(relatedProduct => (
-          <Box key={relatedProduct.id} mb={2}>
+        {relatedProducts.map(product => (
+          <Box key={product.id} display="flex" alignItems="center">
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={selectedRelatedProducts.includes(relatedProduct.id)}
-                  onChange={handleCheckboxChange}
-                  value={relatedProduct.id}
+                  checked={selectedRelatedProducts.includes(product.id)}
+                  onChange={() => handleProductChange(product.id)}
                 />
               }
-              label={relatedProduct.name}
+              label={product.name}
             />
+            {product.description && <DescriptionIcon style={{ marginLeft: 8 }} />}
           </Box>
         ))}
       </FormGroup>
-      <Box mt={2}>
-        <Typography variant="body1">Es sind bereits Inhalte vorhanden.</Typography>
-        <Button variant="contained" color="primary" onClick={handleAdoptContent}>
-          Inhalte übernehmen
-        </Button>
-      </Box>
-    </FormControl>
+      <Button variant="contained" onClick={handleAdoptContent}>
+        Adopt Content
+      </Button>
+    </div>
   );
 };
 

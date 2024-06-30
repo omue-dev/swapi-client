@@ -4,8 +4,19 @@ import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { ProductTableProps } from '../interfaces/types';
 
-const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, paginationModel, setPaginationModel, sortModel, setSortModel, renderStatusIcon, renderProcessedIcon }) => {
+const ProductTable: React.FC<ProductTableProps> = ({ 
+  products, 
+  totalProducts, 
+  paginationModel, 
+  setPaginationModel, 
+  sortModel, 
+  setSortModel, 
+  renderStatusIcon, 
+  renderProcessedIcon,
+  onManufacturerClick 
+}) => {
   const navigate = useNavigate();
+
   const handleProductClick = (id: string) => {
     navigate(`/product/${id}`);
   };
@@ -24,7 +35,17 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, pa
     },
     { field: 'stock', headerName: 'Stock', width: 100 },
     { field: 'updatedAt', headerName: 'Updated At', width: 200 },
-    { field: 'manufacturer', headerName: 'Manufacturer', width: 200, sortable: false },
+    { 
+      field: 'manufacturer', 
+      headerName: 'Manufacturer', 
+      width: 200, 
+      sortable: false,
+      renderCell: (params) => (
+        <span onClick={() => onManufacturerClick(params.row.manufacturerId)} style={{ cursor: 'pointer', color: 'blue' }}>
+          {params.value}
+        </span>
+      )
+    },
     {
       field: 'status',
       headerName: 'Status',
@@ -32,8 +53,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, totalProducts, pa
       sortable: false,
       renderCell: (params) => renderStatusIcon(params.value)
     },
-    { field: 'hasContent',
-      headerName: 'processed',
+    { 
+      field: 'hasContent',
+      headerName: 'Processed',
       width: 200,
       sortable: false,
       renderCell: (params) => renderProcessedIcon(params.value)

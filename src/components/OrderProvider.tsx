@@ -68,7 +68,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                                 Verkäufer: order[14]
                             }))
                             .filter((order: Order) => order.Bestellt); // Nur Bestellungen mit einem Wert für "Bestellt" beibehalten
-                        console.log('Parsed orders:', parsedOrders); // Debugging line
+                        //console.log('Parsed orders:', parsedOrders); // Debugging line
                         setOrders(parsedOrders);
                     },
                     error: (error: unknown) => {
