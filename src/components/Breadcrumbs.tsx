@@ -7,7 +7,7 @@ const Breadcrumbs: React.FC = () => {
   const pathSnippets = location.pathname.split("/").filter(i => i);
 
   const breadcrumbNameMap: { [key: string]: string } = {
-    "/": "Home",
+    "/": "Catalog",
     "/product": "Product Detail"
   };
 
@@ -15,11 +15,11 @@ const Breadcrumbs: React.FC = () => {
     <Link
       component={RouterLink}
       to="/"
-      key="home"
+      key="catalog"
       underline="hover"
       color="inherit"
     >
-      Home
+      Catalog
     </Link>
   ];
 

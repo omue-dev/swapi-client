@@ -1,31 +1,29 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { suppliers as mockSuppliers } from '../utils/suppliers';
+// src/components/SupplierProvider.tsx
+import React, { createContext, useContext } from 'react';
+
+interface Supplier {
+  id: number;
+  name: string;
+}
 
 interface SupplierContextProps {
-    suppliers: { [key: string]: string };
+  suppliers: Supplier[];
 }
 
 const SupplierContext = createContext<SupplierContextProps | undefined>(undefined);
 
 export const useSuppliers = () => {
-    const context = useContext(SupplierContext);
-    if (!context) {
-        throw new Error('useSuppliers must be used within a SupplierProvider');
-    }
-    return context;
+  const context = useContext(SupplierContext);
+  if (!context) {
+    throw new Error('useSuppliers must be used within a SupplierProvider');
+  }
+  return context;
 };
 
-export const SupplierProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [suppliers, setSuppliers] = useState<{ [key: string]: string }>({});
-
-    useEffect(() => {
-        setSuppliers(mockSuppliers);
-        //console.log('Loaded suppliers:', mockSuppliers); // Log the suppliers dictionary
-    }, []);
-
-    return (
-        <SupplierContext.Provider value={{ suppliers }}>
-            {children}
-        </SupplierContext.Provider>
-    );
+export const SupplierProvider: React.FC<{ suppliers: Supplier[]; children: React.ReactNode }> = ({ suppliers, children }) => {
+  return (
+    <SupplierContext.Provider value={{ suppliers }}>
+      {children}
+    </SupplierContext.Provider>
+  );
 };

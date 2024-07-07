@@ -32,7 +32,7 @@ interface OrderTableProps {
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
-    const { suppliers } = useSuppliers();
+    const { suppliers } = useSuppliers() || { suppliers: [] }; // Fallback, falls suppliers undefined ist
     const [open, setOpen] = useState(false);
     const [notification, setNotification] = useState('');
     const [notifiedOrders, setNotifiedOrders] = useState<string[]>([]);

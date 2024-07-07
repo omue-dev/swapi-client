@@ -32,10 +32,8 @@ const Navbar: React.FC<NavbarProps> = ({ isDarkMode, toggleDarkMode }) => {
             style={{ marginRight: 16 }}
             variant={location.pathname === '/' ? 'outlined' : 'text'}
           >
-            Home
+            Catalog
           </Button>
-        </div>
-        <div>
           <Button
             color="inherit"
             component={Link}
@@ -43,7 +41,7 @@ const Navbar: React.FC<NavbarProps> = ({ isDarkMode, toggleDarkMode }) => {
             style={{ marginRight: 16 }}
             variant={location.pathname === '/orders' ? 'outlined' : 'text'}
           >
-            Home
+            Orders
           </Button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
