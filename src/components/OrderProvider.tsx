@@ -86,6 +86,14 @@ const isDateOlderThanToday = (dateString: string) => {
     return date < today;
 };
 
+const isDateWithinLast10Days = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const past10Days = new Date();
+    past10Days.setDate(now.getDate() - 10);
+    return date >= past10Days && date <= now;
+};
+
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [orders, setOrders] = useState<Order[]>([]);
 
@@ -150,10 +158,10 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                                 };
                             })
                             .filter(order => 
-                                order.Bestellt && 
+                                order.Bestellt &&
                                 isDateWithinLast24Months(order.Bestellt) && 
-                                order.Liefertermin && 
-                                isDateOlderThanToday(order.Liefertermin)
+                                (order.Liefertermin && isDateOlderThanToday(order.Liefertermin)) ||
+                                (!order.Liefertermin && isDateWithinLast10Days(order.Bestellt))
                             );
                         setOrders(parsedOrders);
                     },

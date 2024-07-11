@@ -7,7 +7,7 @@ const Orders: React.FC = () => {
 
     return (
         <div>
-            <h1>Orders</h1>
+            <h4>Bestellungen mit baldigem Liefertermin und vor kurzem bestellte Artikel</h4>
             <OrderTable data={orders} />
         </div>
     );

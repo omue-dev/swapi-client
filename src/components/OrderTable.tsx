@@ -95,7 +95,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
     useEffect(() => {
         data.forEach((order) => {
             const today = new Date();
-            const deliveryDate = new Date(order.Liefertermin);
+            const deliveryDate = (() => {
+                const orderedDate = new Date(order.Bestellt);
+                orderedDate.setDate(orderedDate.getDate() + 5);
+                return new Date(order.Liefertermin ? order.Liefertermin : orderedDate);
+            })();
             if (deliveryDate < today && !notifiedOrders.includes(order.id)) {
                 setNotification(`${order.Modell} ${order.Farbe} ist überfällig!`);
                 setOpen(true);
@@ -106,7 +110,12 @@ const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
 
     const getRowClassName = (params: GridRowClassNameParams) => {
         const today = new Date();
-        const deliveryDate = new Date(params.row.Liefertermin);
+        const deliveryDate = (() => {
+            const orderedDate = new Date(params.row.Bestellt);
+            orderedDate.setDate(orderedDate.getDate() + 5);
+            return new Date(params.row.Liefertermin ? params.row.Liefertermin : orderedDate);
+        })();
+        //console.log("DeliveryDate:", deliveryDate);
         return deliveryDate < today ? 'row-red' : '';
     };
 
@@ -118,7 +127,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
     };
 
     return (
-        <div style={{ height: 600, width: '100%', overflowX: 'auto' }}>
+        <div style={{ height: 800, width: '100%', overflowX: 'auto' }}>
             <DataGrid
                 rows={data}
                 columns={columns}
