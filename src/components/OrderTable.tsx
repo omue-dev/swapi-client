@@ -11,20 +11,45 @@ import { IconButton } from '@mui/material';
 interface Order {
     id: string;
     BestellNr: string;
+    FilialeNr: string;
+    Transfer: string;
     Datum: string;
+    Art: string;
     Lieferant: string;
     Artikel: string;
     ReferenzNr: string;
     ModellCode: string;
+    FarbeCode: string;
     Modell: string;
     Farbe: string;
-    Size: string;
+    Größe: string;
     Liefertermin: string;
     Bestellt: string;
+    Bestellen: string;
+    Stornieren: string;
+    Geliefert: string;
     Bestellmenge: string;
+    Abrufmenge: string;
+    Liefermenge: string;
+    Etikettenmenge: string;
+    Preis: string;
+    Netto: string;
+    Rabatt1: string;
+    Rabatt2: string;
+    ReservierteMenge: string;
     Kunde: string;
+    ZugesagtBis: string;
+    Versand: string;
+    Versandadresse: string;
     Bemerkung: string;
+    Anmahnen: string;
+    AngemahntAm: string;
     Verkäufer: string;
+    BestellprotokollNr: string;
+    Gedruckt: string;
+    Code: string;
+    S_Key: string;
+    S_Status: string;
 }
 
 interface OrderTableProps {
@@ -38,36 +63,30 @@ const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
     const [notifiedOrders, setNotifiedOrders] = useState<string[]>([]);
 
     const columns: GridColDef[] = [
-        { field: 'BestellNr', headerName: 'BestellNr', width: 130 },
-        {
-            field: 'Datum',
-            headerName: 'Datum',
-            width: 130,
-            valueGetter: (params: any) => formatDate(params)
-        },
+        { field: 'BestellprotokollNr', headerName: 'BestellNr', width: 130 },
         {
             field: 'Lieferant',
             headerName: 'Lieferant',
             width: 200,
             valueGetter: (params: any) => getSupplierName(params, suppliers)
         },
-        { field: 'ModellCode', headerName: 'ModellCode', width: 130 },
-        { field: 'Modell', headerName: 'Modell', width: 130 },
+        { field: 'ModellCode', headerName: 'ArtNr.', width: 130 },
+        { field: 'Modell', headerName: 'Name', width: 130 },
         { field: 'Farbe', headerName: 'Farbe', width: 130 },
         { field: 'Size', headerName: 'Size', width: 130 },
         {
             field: 'Liefertermin',
-            headerName: 'Liefertermin',
+            headerName: 'LT',
             width: 130,
             valueGetter: (params: any) => formatDate(params)
         },
         {
             field: 'Bestellt',
-            headerName: 'Bestellt',
+            headerName: 'B-Dat.',
             width: 130,
             valueGetter: (params: any) => formatDate(params)
         },
-        { field: 'Bestellmenge', headerName: 'Bestellmenge', width: 130 },
+        { field: 'Bestellmenge', headerName: 'Menge', width: 130 },
         { field: 'Kunde', headerName: 'Kunde', width: 130 },
         { field: 'Bemerkung', headerName: 'Bemerkung', width: 130 },
         { field: 'Verkäufer', headerName: 'Verkäufer', width: 130 },
@@ -99,7 +118,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
     };
 
     return (
-        <div style={{ height: 600, width: '100%' }}>
+        <div style={{ height: 600, width: '100%', overflowX: 'auto' }}>
             <DataGrid
                 rows={data}
                 columns={columns}
