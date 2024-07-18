@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
 import ProductDescription from './common/ProductDescription';
 import MetaDataFields from './common/MetaDataFields';
@@ -12,7 +12,6 @@ import './ProductDetails.css';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
@@ -99,7 +98,7 @@ const ProductDetails: React.FC = () => {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h4" gutterBottom>{productName}</Typography>
+      <Typography variant="h4" gutterBottom>{product?.productNumber} - {productName}</Typography>
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -125,8 +124,8 @@ const ProductDetails: React.FC = () => {
           </Button>
         </Box>       
       </form>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+      <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }} open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="success" variant="filled" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
