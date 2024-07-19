@@ -16,6 +16,7 @@ const useFetchProduct = (id: string) => {
         const attributes = item.data.attributes || {};
         const customFields = attributes.customFields || {};
         const categoryIds = attributes.categoryIds || [];
+        console.log(attributes);
 
         const productData: Product = {
           id: item.data.id,
@@ -28,7 +29,7 @@ const useFetchProduct = (id: string) => {
           metaTitle: attributes.metaTitle || '',
           keywords: attributes.keywords || '',
           categoryIds: categoryIds,
-          productNumber: attributes.productNumber || '',
+          productNumber: customFields.custom_add_product_attributes_oomodellcode || '',
           shortText: customFields.custom_add_product_attributes_short_text || '',
           stock: attributes.stock || 0,
           status: '',
