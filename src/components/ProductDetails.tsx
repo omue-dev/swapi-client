@@ -94,11 +94,10 @@ const ProductDetails: React.FC = () => {
   if (error) return <Typography color="error">Error: {error}</Typography>;
   if (productLoading || relatedProductsLoading) return <Typography>Loading...</Typography>;
   
-  const productName = product?.name.split(',')[0] || '';
-
+  //const productName = product?.name.split(',')[0] || '';
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h4" gutterBottom>{product?.productNumber} - {productName}</Typography>
+      <Typography variant="h6" gutterBottom>{product?.productNumber} - {product?.name}</Typography>
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
