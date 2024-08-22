@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import ProductTable from '../components/ProductTable';
-import { Container, TextField, Typography, InputAdornment, IconButton, CircularProgress, Button, Box } from '@mui/material';
+import { Container, TextField, InputAdornment, IconButton, CircularProgress, Button, Box } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { green, red } from '@mui/material/colors';
