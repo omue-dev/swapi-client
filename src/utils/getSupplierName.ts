@@ -9,6 +9,6 @@ interface Supplier {
     //console.log('suppliers:', suppliers);
     const supplierNumber = String(params);
     const supplier = suppliers.find(supplier => supplier.LieferantNr === supplierNumber);
-    return supplier ? supplier.Name : 'Unknown Supplier';
+    return supplier ? supplier.Name : 'Unknown Supplier (' + supplierNumber +')';
   };
   

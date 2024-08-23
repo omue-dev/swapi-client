@@ -6,7 +6,7 @@ interface Order {
     BestellNr: string;
     FilialeNr: string;
     Transfer: string;
-    Datum: string;
+    Datum: string | null; 
     Art: string;
     Lieferant: string;
     Artikel: string;
@@ -16,8 +16,8 @@ interface Order {
     Modell: string;
     Farbe: string;
     Größe: string;
-    Liefertermin: string;
-    Bestellt: string;
+    Liefertermin: string | null;
+    Bestellt: string | null;
     Bestellen: string;
     Stornieren: string;
     Geliefert: string;
@@ -60,16 +60,29 @@ export const useOrders = () => {
 };
 
 const parseDateToISO = (dateString: string) => {
-    const dateParts = dateString.split('.');
-    if (dateParts.length === 3) {
+    // Regulärer Ausdruck für Datumswerte im Format DD.MM.YYYY (z.B. 31.12.2024)
+    const datePattern = /^\d{2}\.\d{2}\.\d{4}$/;
+
+    if (datePattern.test(dateString)) {
+        const dateParts = dateString.split('.');
         const day = parseInt(dateParts[0], 10);
         const month = parseInt(dateParts[1], 10) - 1; // JavaScript months are 0-11
         const year = parseInt(dateParts[2], 10);
+
+        // Erstelle ein Datum und prüfe, ob es gültig ist
         const date = new Date(year, month, day);
-        return date.toISOString(); // Convert to ISO 8601 format
+        if (!isNaN(date.getTime())) {
+            return date.toISOString(); // Convert to ISO 8601 format
+        }
     }
-    return dateString; // Return the original string if it's not a valid date
+
+    // Wenn es kein Datum ist, wird es als ungültig betrachtet
+    //console.warn(`Ungültiges Datum: ${dateString}`);
+    return null; // Gib null zurück, wenn es kein gültiges Datum ist
 };
+
+
+
 
 const isDateWithinLast24Months = (dateString: string) => {
     const date = new Date(dateString);
@@ -109,9 +122,9 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     complete: (results) => {
                         const parsedOrders = (results.data as string[][]).slice(1) // Entfernt die erste Zeile (Header)
                             .map((order, index) => {
-                                const datum = order[3] ? parseDateToISO(order[3]) : '';
-                                const liefertermin = order[13] ? parseDateToISO(order[13]) : '';
-                                const bestellt = order[14] ? parseDateToISO(order[14]) : '';
+                                const datum = order[3] ? parseDateToISO(order[3]) ?? '' : '';
+                                const liefertermin = order[13] ? parseDateToISO(order[13]) ?? '' : '';
+                                const bestellt = order[14] ? parseDateToISO(order[14]) ?? '' : '';
 
                                 return {
                                     id: index.toString(),
