@@ -1,4 +1,4 @@
-LieferantNr;Lieferant
+﻿LieferantNr;Lieferant
 0;diverse
 6;Berghaus
 8;Brettschneider
@@ -24,7 +24,7 @@ LieferantNr;Lieferant
 86;VauDe
 95;Jack Wolfskin
 103;Amazonas
-226;Böse
+226;Büse
 231;Eagle Creek Europe Ltd.
 235;Engel Feldbetten
 239;Gore Bike Wear
@@ -132,7 +132,7 @@ LieferantNr;Lieferant
 414;LiteXpress GmbH
 415;XP-Edition GmbH
 416;Southdown 4x4 Products Ltd
-418;SIPS D. Dücker GmbH
+418;SIPS D. Döcker GmbH
 419;Triple X GmbH
 420;Schöffel Sportbekleidung GmbH
 421;Keen Europe Outdoor BV
@@ -165,7 +165,7 @@ LieferantNr;Lieferant
 457;G-Line Handelsgesellschaft
 458;Daams 4x4 Products
 461;Eifelverein e.V.
-462;Wörth
+462;Würth
 464;Ropimex
 465;Fenix GmbH
 467;Bergkönig
