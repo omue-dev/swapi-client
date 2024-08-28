@@ -1,5 +1,4 @@
 import { GridPaginationModel, GridSortModel } from "@mui/x-data-grid";
-import { Dispatch, SetStateAction } from "react";
 
 export interface Manufacturer {
     id: string; 
@@ -48,3 +47,46 @@ export interface Manufacturer {
     name: string; 
   }
   
+  export interface Order {
+    id: string;
+    BestellNr: string;
+    FilialeNr: string;
+    Transfer: string;
+    Datum: string | null; 
+    Art: string;
+    Lieferant: string;
+    Artikel: string;
+    ReferenzNr: string;
+    ModellCode: string;
+    FarbeCode: string;
+    Modell: string;
+    Farbe: string;
+    Größe: string;
+    Liefertermin: string | null;
+    Bestellt: string | null;
+    Bestellen: string;
+    Stornieren: string;
+    Geliefert: string;
+    Bestellmenge: string;
+    Abrufmenge: string;
+    Liefermenge: string;
+    Etikettenmenge: string;
+    Preis: string;
+    Netto: string;
+    Rabatt1: string;
+    Rabatt2: string;
+    ReservierteMenge: string;
+    Kunde: string;
+    ZugesagtBis: string;
+    Versand: string;
+    Versandadresse: string;
+    Bemerkung: string;
+    Anmahnen: string;
+    AngemahntAm: string;
+    Verkäufer: string;
+    BestellprotokollNr: string;
+    Gedruckt: string;
+    Code: string;
+    S_Key: string;
+    S_Status: string;
+}

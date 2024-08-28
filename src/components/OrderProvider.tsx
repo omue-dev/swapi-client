@@ -1,49 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import Papa from 'papaparse';
-
-interface Order {
-    id: string;
-    BestellNr: string;
-    FilialeNr: string;
-    Transfer: string;
-    Datum: string | null; 
-    Art: string;
-    Lieferant: string;
-    Artikel: string;
-    ReferenzNr: string;
-    ModellCode: string;
-    FarbeCode: string;
-    Modell: string;
-    Farbe: string;
-    Größe: string;
-    Liefertermin: string | null;
-    Bestellt: string | null;
-    Bestellen: string;
-    Stornieren: string;
-    Geliefert: string;
-    Bestellmenge: string;
-    Abrufmenge: string;
-    Liefermenge: string;
-    Etikettenmenge: string;
-    Preis: string;
-    Netto: string;
-    Rabatt1: string;
-    Rabatt2: string;
-    ReservierteMenge: string;
-    Kunde: string;
-    ZugesagtBis: string;
-    Versand: string;
-    Versandadresse: string;
-    Bemerkung: string;
-    Anmahnen: string;
-    AngemahntAm: string;
-    Verkäufer: string;
-    BestellprotokollNr: string;
-    Gedruckt: string;
-    Code: string;
-    S_Key: string;
-    S_Status: string;
-}
+import { Order } from '../interfaces/types';
 
 interface OrderContextProps {
     orders: Order[];
@@ -122,16 +79,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     complete: (results) => {
                         const parsedOrders = (results.data as string[][]).slice(1) // Entfernt die erste Zeile (Header)
                             .map((order, index) => {
-                                const datum = order[3] ? parseDateToISO(order[3]) ?? '' : '';
-                                const liefertermin = order[13] ? parseDateToISO(order[13]) ?? '' : '';
-                                const bestellt = order[14] ? parseDateToISO(order[14]) ?? '' : '';
-
+                                //console.log(results.data);
                                 return {
                                     id: index.toString(),
                                     BestellNr: order[0],
                                     FilialeNr: order[1],
                                     Transfer: order[2],
-                                    Datum: datum,
+                                    Datum: order[3],
                                     Art: order[4],
                                     Lieferant: order[5],
                                     Artikel: order[6],
@@ -141,8 +95,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                                     Modell: order[10],
                                     Farbe: order[11],
                                     Größe: order[12],
-                                    Liefertermin: liefertermin,
-                                    Bestellt: bestellt,
+                                    Liefertermin: order[13],
+                                    Bestellt: order[14],
                                     Bestellen: order[15],
                                     Stornieren: order[16],
                                     Geliefert: order[17],

@@ -1,52 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { DataGrid, GridColDef, GridRowClassNameParams } from '@mui/x-data-grid';
 import { useSuppliers } from './SupplierProvider';
 import { getSupplierName } from '../utils/getSupplierName';
 import { formatDate } from '../utils/dateformat';
-
-interface Order {
-    id: string;
-    BestellNr: string;
-    FilialeNr: string;
-    Transfer: string;
-    Datum: string;
-    Art: string;
-    Lieferant: string;
-    Artikel: string;
-    ReferenzNr: string;
-    ModellCode: string;
-    FarbeCode: string;
-    Modell: string;
-    Farbe: string;
-    Größe: string;
-    Liefertermin: string;
-    Bestellt: string;
-    Bestellen: string;
-    Stornieren: string;
-    Geliefert: string;
-    Bestellmenge: string;
-    Abrufmenge: string;
-    Liefermenge: string;
-    Etikettenmenge: string;
-    Preis: string;
-    Netto: string;
-    Rabatt1: string;
-    Rabatt2: string;
-    ReservierteMenge: string;
-    Kunde: string;
-    ZugesagtBis: string;
-    Versand: string;
-    Versandadresse: string;
-    Bemerkung: string;
-    Anmahnen: string;
-    AngemahntAm: string;
-    Verkäufer: string;
-    BestellprotokollNr: string;
-    Gedruckt: string;
-    Code: string;
-    S_Key: string;
-    S_Status: string;
-}
+import { Order } from '../interfaces/types';
 
 interface OrderTableProps {
     data: Order[];
@@ -79,7 +36,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
             width: 130,
             valueGetter: (params: any) => formatDate(params)
         },
-        { field: 'Bestellmenge', headerName: 'Menge', width: 130 },
+        { field: 'Bestellmenge', headerName: 'Menge', width: 130, valueGetter: (params: any) => parseFloat(params) },
         { field: 'Kunde', headerName: 'Kunde', width: 130 },
         { field: 'Bemerkung', headerName: 'Bemerkung', width: 130 },
         { field: 'Verkäufer', headerName: 'Verkäufer', width: 130 },
