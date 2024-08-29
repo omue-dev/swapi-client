@@ -91,10 +91,25 @@ const ProductDetails: React.FC = () => {
     setSnackbarOpen(false);
   };
 
+  const handleMetaTitleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newMetaTitle = event.target.value;
+    setProduct(prevProduct => prevProduct ? { ...prevProduct, metaTitle: newMetaTitle } : null);
+  };
+
+  const handleMetaDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newMetaDescription = event.target.value;
+    setProduct(prevProduct => prevProduct ? { ...prevProduct, metaDescription: newMetaDescription } : null);
+  };
+
+  const metaTitleLength = product?.metaTitle?.length || 0;
+  const metaDescriptionLength = product?.metaDescription?.length || 0;
+
+  const metaTitleColor = metaTitleLength <= 56 ? 'green' : 'red';
+  const metaDescriptionColor = metaDescriptionLength <= 250 ? 'green' : 'red';
+
   if (error) return <Typography color="error">Error: {error}</Typography>;
   if (productLoading || relatedProductsLoading) return <Typography>Loading...</Typography>;
   
-  //const productName = product?.name.split(',')[0] || '';
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>{product?.productNumber} - {product?.name}</Typography>
@@ -104,17 +119,26 @@ const ProductDetails: React.FC = () => {
             <ProductDescription product={product} setProduct={setProduct} />
           </Grid>
           <Grid item xs={12} sm={6}>
-          {relatedProducts.length > 1  && (
-            <RelatedProducts
-              relatedProducts={relatedProducts}
-              selectedRelatedProducts={selectedRelatedProducts}
-              setSelectedRelatedProducts={setSelectedRelatedProducts}
-              selectAll={selectAll}
-              setSelectAll={setSelectAll}
-              handleAdoptContent={handleAdoptContent}
+            {relatedProducts.length > 1  && (
+              <RelatedProducts
+                relatedProducts={relatedProducts}
+                selectedRelatedProducts={selectedRelatedProducts}
+                setSelectedRelatedProducts={setSelectedRelatedProducts}
+                selectAll={selectAll}
+                setSelectAll={setSelectAll}
+                handleAdoptContent={handleAdoptContent}
+              />
+            )}
+            <MetaDataFields 
+              product={product} 
+              setProduct={setProduct}
+              metaTitleColor={metaTitleColor} 
+              metaDescriptionColor={metaDescriptionColor}
+              metaTitleLength={metaTitleLength}
+              metaDescriptionLength={metaDescriptionLength}
+              handleMetaTitleChange={handleMetaTitleChange}
+              handleMetaDescriptionChange={handleMetaDescriptionChange}
             />
-          )}
-            <MetaDataFields product={product} setProduct={setProduct} />
           </Grid>
         </Grid>
         <Box className="sticky-save-button">
