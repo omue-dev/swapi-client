@@ -24,8 +24,12 @@ const App: React.FC = () => {
           <Box component="header" className="header">
             <Navbar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           </Box>
-          <Box component="main" className="content" sx={{ flexGrow: 1 }}>
-            <Container maxWidth="xl">
+          <Box component="main" className="content" sx={{ flexGrow: 1, padding: 0 }}>
+            {/* Container with adjusted padding */}
+            <Container 
+              maxWidth={false} // Removes the maxWidth limit
+              sx={{ paddingLeft: '0px', paddingRight: '0px', margin: '0', width: '100%' }} // Ensures full width without padding
+            >
               <Breadcrumbs />
               <Box className="content-div">
                 <AppRoutes />

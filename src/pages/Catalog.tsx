@@ -69,7 +69,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Container className="table-container">
+    <div>
       <TextField
         label="Search"
         value={searchTerm}
@@ -125,7 +125,7 @@ const Home: React.FC = () => {
           onManufacturerClick={handleManufacturerClick} // Add this line
         />
       )}
-    </Container>
+    </div>
   );
 };
 
