@@ -40,7 +40,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
           InputProps={{
             endAdornment: (
               <Typography variant="caption" sx={{ color: metaTitleColor }}>
-                {metaTitleLength}/56
+                {metaTitleLength}/80
               </Typography>
             )
           }}

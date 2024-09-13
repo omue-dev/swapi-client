@@ -8,15 +8,20 @@ import { SupplierProvider } from "./components/SupplierProvider";
 import { OrderProvider } from "./components/OrderProvider";
 
 const AppRoutes: React.FC = () => (
-  <SupplierProvider>
-    <OrderProvider>
-      <Routes>
-        <Route path="/" element={<Catalog />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-      </Routes>
-    </OrderProvider>
-</SupplierProvider>
+  <Routes>
+  <Route path="/" element={<Catalog />} />
+  <Route 
+    path="/orders" 
+    element={
+      <SupplierProvider>
+        <OrderProvider>
+          <Orders />
+        </OrderProvider>
+      </SupplierProvider>
+    } 
+/>
+  <Route path="/product/:id" element={<ProductDetails />} />
+</Routes>
 );
 
 export default AppRoutes;

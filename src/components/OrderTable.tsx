@@ -1,69 +1,104 @@
-import React from 'react';
-import { DataGrid, GridColDef, GridRowClassNameParams } from '@mui/x-data-grid';
+import React, { useState } from 'react';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Button } from '@mui/material'; // Button-Import
 import { useSuppliers } from './SupplierProvider';
 import { getSupplierName } from '../utils/getSupplierName';
-import { formatDate } from '../utils/dateformat';
+import SupplierOrders from './SupplierOrders'; // Import der neuen Komponente
+import { useOrders } from './OrderProvider';  // Um die fetchOrders-Funktion zu holen
 import { Order } from '../interfaces/types';
 
 interface OrderTableProps {
-    data: Order[];
+    showError: (message: string) => void;  // Prop zum Setzen von Fehlernachrichten
+    setCreatedAt: (date: string | null) => void;  // Prop zum Setzen des Erstellungsdatums
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({ data }) => {
+const OrderTable: React.FC<OrderTableProps> = ({ showError, setCreatedAt }) => {
     const { suppliers } = useSuppliers() || { suppliers: [] }; // Fallback, falls suppliers undefined ist
+    const { orders, fetchOrders } = useOrders();  // Verwende fetchOrders, um den Endpunkt zu steuern und die Bestellungen zu laden
+    const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null); // Zustand für ausgewählten Lieferanten
+    const [overdue, setOverdue] = useState(false); // Zustand für den "overdue"-Button
+
+    // Funktion zum Aktualisieren der Bestellungen
+    const handleUpdateClick = async () => {
+        try {
+            await fetchOrders();  // Fetch-Daten
+            const updatedCreatedAt = localStorage.getItem('createdAt');
+            if (updatedCreatedAt) {
+                setCreatedAt(JSON.parse(updatedCreatedAt));  // Setzt das Datum nach Aktualisierung
+            }
+        } catch (error) {
+            showError('Dieser Vorgang bedarf einer aktiven VPN-Verbindung zu weltenbummler.locale');
+            console.error('Fehler beim Abrufen der Bestellungen:', error);
+        }
+    };
+
+    // Filterlogik: Wenn "overdue" aktiviert ist, zeige nur Lieferanten mit abgelaufenem Liefertermin
+    const filteredSuppliers = overdue
+        ? orders
+              .filter(order => {
+                  if (!order.Liefertermin) return false;
+                  const deliveryDate = new Date(order.Liefertermin);
+                  return deliveryDate < new Date(); // Lieferdatum ist abgelaufen
+              })
+              .map(order => order.Lieferant)
+              .filter((value, index, self) => self.indexOf(value) === index) // Nur einzigartige Hersteller
+        : orders
+              .map(order => order.Lieferant)
+              .filter((value, index, self) => self.indexOf(value) === index); // Alle Lieferanten
 
     const columns: GridColDef[] = [
-        { field: 'BestellprotokollNr', headerName: 'BestellNr', width: 130 },
         {
             field: 'Lieferant',
             headerName: 'Lieferant',
             width: 200,
-            valueGetter: (params: any) => getSupplierName(params, suppliers)
-        },
-        { field: 'ModellCode', headerName: 'ArtNr.', width: 130 },
-        { field: 'Modell', headerName: 'Name', width: 130 },
-        { field: 'Farbe', headerName: 'Farbe', width: 130 },
-        { field: 'Size', headerName: 'Size', width: 130 },
-        {
-            field: 'Liefertermin',
-            headerName: 'LT',
-            width: 130,
-            valueGetter: (params: any) => formatDate(params)
-        },
-        {
-            field: 'Bestellt',
-            headerName: 'B-Dat.',
-            width: 130,
-            valueGetter: (params: any) => formatDate(params)
-        },
-        { field: 'Bestellmenge', headerName: 'Menge', width: 130, valueGetter: (params: any) => parseFloat(params) },
-        { field: 'Kunde', headerName: 'Kunde', width: 130 },
-        { field: 'Bemerkung', headerName: 'Bemerkung', width: 130 },
-        { field: 'Verkäufer', headerName: 'Verkäufer', width: 130 },
+            valueGetter: (params: any) => getSupplierName(params, suppliers),
+            sortable: true, // Ermöglicht das Sortieren
+        }
     ];
 
-    const getRowClassName = (params: GridRowClassNameParams) => {
-        const today = new Date();
-        const deliveryDate = (() => {
-            const orderedDate = new Date(params.row.Bestellt);
-            orderedDate.setDate(orderedDate.getDate() + 5);
-            return new Date(params.row.Liefertermin ? params.row.Liefertermin : orderedDate);
-        })();
-        return deliveryDate < today ? 'row-red' : '';
-    };
+    const rows = filteredSuppliers.map((supplier, index) => ({
+        id: index,
+        Lieferant: supplier,
+    }));
+
+    // Wenn ein Lieferant ausgewählt wurde, rendere die SupplierOrders-Komponente
+    if (selectedSupplier) {
+        return <SupplierOrders data={orders} supplier={selectedSupplier} overdue={overdue} />;
+    }
 
     return (
-        <div style={{ height: 800, width: '100%', overflowX: 'auto' }}>
+        <div style={{ height: 600, width: '100%' }}>
+            <div style={{ display: 'flex', gap: '10px' }}>
+                {/* Aktualisieren-Button */}
+                <Button variant="contained" color="primary" onClick={handleUpdateClick}>
+                    Aktualisieren
+                </Button>
+
+                {/* Überfällige-Button */}
+                <Button variant="contained" color={overdue ? 'primary' : 'error'} onClick={() => setOverdue(!overdue)}>
+                    {overdue ? 'Zeige Alle' : 'Zeige Überfällige'}
+                </Button>
+            </div>
+
             <DataGrid
-                rows={data}
+                rows={rows}
                 columns={columns}
-                getRowClassName={getRowClassName}
                 initialState={{
                     pagination: {
                         paginationModel: { pageSize: 100, page: 0 },
                     },
+                    sorting: {
+                        sortModel: [{ field: 'Lieferant', sort: 'asc' }],
+                    },
                 }}
                 pageSizeOptions={[100]}
+                sortingOrder={['asc', 'desc']}
+                onRowClick={(params) => setSelectedSupplier(params.row.Lieferant)} // Bei Klick auf eine Zeile wird der Lieferant gesetzt
+                sx={{
+                    '& .MuiDataGrid-row:hover': {
+                        cursor: 'pointer',
+                    },
+                }}
             />
         </div>
     );

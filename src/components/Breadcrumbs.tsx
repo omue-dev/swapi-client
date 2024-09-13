@@ -1,55 +1,54 @@
 import React from "react";
-import { Breadcrumbs as MUIBreadcrumbs, Link, Typography, Box } from "@mui/material";
-import { Link as RouterLink, useLocation } from "react-router-dom";
+import { Breadcrumbs as MUIBreadcrumbs, Link, Typography } from "@mui/material";
+import { useLocation, Link as RouterLink } from "react-router-dom";
+
+// Map für benutzerfreundliche Namen
+const breadcrumbNameMap: { [key: string]: string } = {
+  "/": "Shop",
+  "/orders": "Bestellungen",
+  "/product": "Artikel", // Allgemeiner Name für die Produktseite
+  // Weitere Pfade und deren benutzerfreundliche Namen hinzufügen
+};
 
 const Breadcrumbs: React.FC = () => {
   const location = useLocation();
   const pathSnippets = location.pathname.split("/").filter(i => i);
 
-  const breadcrumbNameMap: { [key: string]: string } = {
-    "/": "Catalog",
-    "/product": "Product Detail"
-  };
-
   const breadcrumbItems = [
-    <Link
-      component={RouterLink}
-      to="/"
-      key="catalog"
-      underline="hover"
-      color="inherit"
-    >
-      Catalog
+    <Link component={RouterLink} to="/" key="home" underline="hover" color="inherit">
+      Shop
     </Link>
   ];
 
   pathSnippets.forEach((_, index) => {
+    const isLast = index === pathSnippets.length - 1;
     const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
+
+    // Überprüfen, ob es ein dynamischer Pfad wie /product/:id ist
+    let breadcrumbName = breadcrumbNameMap[`/${pathSnippets[index]}`];
+
+    // Dynamische Routen behandeln, z.B. /product/:id
+    if (!breadcrumbName && url.includes("/product/")) {
+      breadcrumbName = "Artikel Details";  // Anzeigename für Produkte, nicht die ID anzeigen
+    }
+
     breadcrumbItems.push(
-      index === pathSnippets.length - 1 ? (
-        <Typography color="textPrimary" key={url}>
-          {breadcrumbNameMap[url]}
+      isLast ? (
+        <Typography color="textPrimary" key={url} style={{ padding: '16px' }}>
+          {breadcrumbName || url} {/* Anzeigename oder URL anzeigen */}
         </Typography>
       ) : (
-        <Link
-          component={RouterLink}
-          to={url}
-          key={url}
-          underline="hover"
-          color="inherit"
-        >
-          {breadcrumbNameMap[url]}
+        <Link component={RouterLink} to={url} key={url} underline="hover" color="inherit">
+          {breadcrumbName || url} {/* Anzeigename oder URL anzeigen */}
         </Link>
       )
     );
   });
 
   return (
-    <Box p={2}>
-      <MUIBreadcrumbs aria-label="breadcrumb">
-        {breadcrumbItems}
-      </MUIBreadcrumbs>
-    </Box>
+    <MUIBreadcrumbs aria-label="breadcrumb">
+      {breadcrumbItems}
+    </MUIBreadcrumbs>
   );
 };
 

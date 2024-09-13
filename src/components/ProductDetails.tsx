@@ -104,7 +104,7 @@ const ProductDetails: React.FC = () => {
   const metaTitleLength = product?.metaTitle?.length || 0;
   const metaDescriptionLength = product?.metaDescription?.length || 0;
 
-  const metaTitleColor = metaTitleLength <= 56 ? 'green' : 'red';
+  const metaTitleColor = metaTitleLength <= 80 ? 'green' : 'red';
   const metaDescriptionColor = metaDescriptionLength <= 250 ? 'green' : 'red';
 
   if (error) return <Typography color="error">Error: {error}</Typography>;
