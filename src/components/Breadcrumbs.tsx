@@ -4,7 +4,8 @@ import { useLocation, Link as RouterLink } from "react-router-dom";
 
 // Map für benutzerfreundliche Namen
 const breadcrumbNameMap: { [key: string]: string } = {
-  "/": "Shop",
+  "/": "Home",
+  "/catalog": "Shop",
   "/orders": "Bestellungen",
   "/product": "Artikel", // Allgemeiner Name für die Produktseite
   // Weitere Pfade und deren benutzerfreundliche Namen hinzufügen
@@ -16,7 +17,7 @@ const Breadcrumbs: React.FC = () => {
 
   const breadcrumbItems = [
     <Link component={RouterLink} to="/" key="home" underline="hover" color="inherit">
-      Shop
+      Home
     </Link>
   ];
 
@@ -34,7 +35,7 @@ const Breadcrumbs: React.FC = () => {
 
     breadcrumbItems.push(
       isLast ? (
-        <Typography color="textPrimary" key={url} style={{ padding: '16px' }}>
+        <Typography color="textPrimary" key={url}>
           {breadcrumbName || url} {/* Anzeigename oder URL anzeigen */}
         </Typography>
       ) : (
@@ -46,7 +47,7 @@ const Breadcrumbs: React.FC = () => {
   });
 
   return (
-    <MUIBreadcrumbs aria-label="breadcrumb">
+    <MUIBreadcrumbs aria-label="breadcrumb" style={{ display: 'flex', alignItems: 'center', marginTop: "20px" }}>
       {breadcrumbItems}
     </MUIBreadcrumbs>
   );
