@@ -37,15 +37,6 @@ export interface Manufacturer {
     onManufacturerClick: (manufacturerId: string) => void;
   }
   
-  export interface Category {
-    id: string;
-    name: string;
-  }
-
-  export interface FeaureSet {
-    id: string;
-    name: string; 
-  }
   
   export interface Order {
     id: string;
