@@ -12,18 +12,18 @@
     "start": "vite preview"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-basic-styles": "^41.4.2",
-    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
-    "@ckeditor/ckeditor5-editor-classic": "^41.4.2",
-    "@ckeditor/ckeditor5-essentials": "^41.4.2",
-    "@ckeditor/ckeditor5-heading": "^41.4.2",
-    "@ckeditor/ckeditor5-link": "^41.4.2",
-    "@ckeditor/ckeditor5-list": "^41.4.2",
-    "@ckeditor/ckeditor5-markdown-gfm": "^41.4.2",
+    "@ckeditor/ckeditor5-basic-styles": "^45.2.0",
+    "@ckeditor/ckeditor5-build-classic": "^44.3.0",
+    "@ckeditor/ckeditor5-editor-classic": "^45.2.0",
+    "@ckeditor/ckeditor5-essentials": "^45.2.0",
+    "@ckeditor/ckeditor5-heading": "^45.2.0",
+    "@ckeditor/ckeditor5-link": "^45.2.0",
+    "@ckeditor/ckeditor5-list": "^45.2.0",
+    "@ckeditor/ckeditor5-markdown-gfm": "^45.2.0",
     "@ckeditor/ckeditor5-paragraph": "^41.4.2",
     "@ckeditor/ckeditor5-react": "^7.0.0",
-    "@ckeditor/ckeditor5-source-editing": "^41.4.2",
-    "@ckeditor/ckeditor5-table": "^41.4.2",
+    "@ckeditor/ckeditor5-source-editing": "^45.2.0",
+    "@ckeditor/ckeditor5-table": "^45.2.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.18",
@@ -31,8 +31,8 @@
     "@mui/x-charts": "^7.5.1",
     "@mui/x-data-grid": "^7.5.1",
     "axios": "^1.7.2",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.3",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -76,6 +76,6 @@
     "ts-jest": "^29.1.2",
     "typescript": "^5.3.3",
     "typescript-eslint": "^7.9.0",
-    "vite": "^5.2.0"
+    "vite": "^6.3.5"
   }
 }
