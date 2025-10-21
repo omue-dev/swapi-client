@@ -1,10 +1,26 @@
-import React from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import React, { useRef, useState } from 'react';
 import { sanitizeDescription } from '../../utils/utils';
 import { Product } from '../../interfaces/types';
 import TextField from '@mui/material/TextField';
-import { Box } from '@mui/material';
+import {
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
+} from '@mui/material';
+
+// MUI Icons
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import LinkIcon from '@mui/icons-material/Link';
+import CodeIcon from '@mui/icons-material/Code';
+import TitleIcon from '@mui/icons-material/Title';
+import LooksOneIcon from '@mui/icons-material/LooksOne';
+import LooksTwoIcon from '@mui/icons-material/LooksTwo';
+import Looks3Icon from '@mui/icons-material/Looks3';
 
 interface ProductDescriptionProps {
   product: Product | null;
@@ -12,27 +28,191 @@ interface ProductDescriptionProps {
 }
 
 const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setProduct }) => {
+  const editableRef = useRef<HTMLDivElement | null>(null);
+  const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+  const [showHtml, setShowHtml] = useState(false);
+
+  const handleDescriptionChange = () => {
+    if (editableRef.current) {
+      const raw = showHtml
+        ? editableRef.current.innerText
+        : editableRef.current.innerHTML;
+      const cleanHtml = sanitizeDescription(raw);
+      setProduct((prev) => ({
+        ...prev!,
+        description: cleanHtml,
+      }));
+    }
+  };
+
+  const exec = (cmd: string, value?: string) => {
+    document.execCommand(cmd, false, value);
+    handleDescriptionChange();
+  };
+
+  const handleLink = () => {
+    const url = prompt('Link-Adresse eingeben (z. B. https://...)');
+    if (url) exec('createLink', url);
+  };
+
+  const handleMouseOver = (event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (target && ['H1', 'H2', 'H3', 'P', 'UL', 'OL', 'LI'].includes(target.tagName)) {
+      setHoveredTag(target.tagName);
+    } else {
+      setHoveredTag(null);
+    }
+  };
+
+  const handleMouseOut = () => setHoveredTag(null);
+
   return (
     <Box mt={2}>
-       <TextField
+      <TextField
         label="Short Text"
         multiline
         fullWidth
         rows={4}
         value={product?.shortText || ''}
-        onChange={(e) => setProduct(prev => ({ ...prev!, shortText: e.target.value }))}
+        onChange={(e) =>
+          setProduct((prev) => ({
+            ...prev!,
+            shortText: e.target.value,
+          }))
+        }
       />
-      {product?.description !== null && (
-        <CKEditor
-          editor={ClassicEditor}
-          data={product?.description || ''}
-          onError={error => console.error('Editor error occurred:', error)}
-          onChange={(_event, editor) => {
-            const data = sanitizeDescription(editor.getData());
-            setProduct(prev => ({ ...prev!, description: data }));
+
+      <Box mt={3}>
+        <Typography variant="subtitle1" gutterBottom>
+          Description
+        </Typography>
+
+        {/* ✨ Toolbar mit Icons */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            border: '1px solid #ddd',
+            borderRadius: 2,
+            mb: 1,
+            p: 0.5,
           }}
-        />
-      )}
+        >
+          <Tooltip title="Paragraph">
+            <IconButton onClick={() => exec('formatBlock', 'p')}>
+              <TitleIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Überschrift 1">
+            <IconButton onClick={() => exec('formatBlock', 'h1')}>
+              <LooksOneIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Überschrift 2">
+            <IconButton onClick={() => exec('formatBlock', 'h2')}>
+              <LooksTwoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Überschrift 3">
+            <IconButton onClick={() => exec('formatBlock', 'h3')}>
+              <Looks3Icon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Fett">
+            <IconButton onClick={() => exec('bold')}>
+              <FormatBoldIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Kursiv">
+            <IconButton onClick={() => exec('italic')}>
+              <FormatItalicIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Unterstrichen">
+            <IconButton onClick={() => exec('underline')}>
+              <FormatUnderlinedIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Ungeordnete Liste">
+            <IconButton onClick={() => exec('insertUnorderedList')}>
+              <FormatListBulletedIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Geordnete Liste">
+            <IconButton onClick={() => exec('insertOrderedList')}>
+              <FormatListNumberedIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Link">
+            <IconButton onClick={handleLink}>
+              <LinkIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title={showHtml ? 'WYSIWYG anzeigen' : 'HTML-Code anzeigen'}>
+            <IconButton
+              onClick={() => setShowHtml((prev) => !prev)}
+              color={showHtml ? 'secondary' : 'default'}
+            >
+              <CodeIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {/* ✍️ Editable Bereich */}
+        <Tooltip
+          title={hoveredTag ? `Aktuell: <${hoveredTag.toLowerCase()}>` : ''}
+          placement="top-start"
+          arrow
+        >
+          <Box
+            ref={editableRef}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={handleDescriptionChange}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
+            sx={{
+              border: '1px solid #ccc',
+              borderRadius: 2,
+              padding: 2,
+              minHeight: 150,
+              fontSize: '1rem',
+              lineHeight: 1.5,
+              outline: 'none',
+              cursor: 'text',
+              fontFamily: showHtml ? 'monospace' : 'inherit',
+              whiteSpace: showHtml ? 'pre-wrap' : 'normal',
+              '& h1': { fontSize: '1.8rem' },
+              '& h2': { fontSize: '1.4rem' },
+              '& h3': { fontSize: '1.2rem' },
+              '& ul, & ol': { paddingLeft: '1.5em' },
+              '& li': { margin: '0.2em 0' },
+              '& a': { color: 'primary.main' },
+              '& h1:hover, & h2:hover, & h3:hover, & p:hover, & li:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+              },
+            }}
+            dangerouslySetInnerHTML={{
+              __html: showHtml
+                ? product?.description
+                    ?.replace(/</g, '&lt;')
+                    ?.replace(/>/g, '&gt;') || ''
+                : product?.description || '',
+            }}
+          />
+        </Tooltip>
+      </Box>
     </Box>
   );
 };

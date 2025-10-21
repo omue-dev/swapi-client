@@ -12,16 +12,7 @@
     "start": "vite preview"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-basic-styles": "^45.2.0",
-    "@ckeditor/ckeditor5-build-classic": "^44.3.0",
-    "@ckeditor/ckeditor5-editor-classic": "^45.2.0",
-    "@ckeditor/ckeditor5-essentials": "^45.2.0",
-    "@ckeditor/ckeditor5-heading": "^45.2.0",
-    "@ckeditor/ckeditor5-link": "^45.2.0",
-    "@ckeditor/ckeditor5-list": "^45.2.0",
     "@ckeditor/ckeditor5-markdown-gfm": "^45.2.0",
-    "@ckeditor/ckeditor5-paragraph": "^41.4.2",
-    "@ckeditor/ckeditor5-react": "^7.0.0",
     "@ckeditor/ckeditor5-source-editing": "^45.2.0",
     "@ckeditor/ckeditor5-table": "^45.2.0",
     "@emotion/react": "^11.11.4",
