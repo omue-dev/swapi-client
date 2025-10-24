@@ -2,6 +2,7 @@ import React from 'react';
 import { Product } from '../../interfaces/types';
 import TextField from '@mui/material/TextField';
 import { Typography, Box } from '@mui/material';
+import { SEO_LIMITS } from '../../constants';
 
 interface MetaDataFieldsProps {
   product: Product | null;
@@ -40,7 +41,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
           InputProps={{
             endAdornment: (
               <Typography variant="caption" sx={{ color: metaTitleColor }}>
-                {metaTitleLength}/80
+                {metaTitleLength}/{SEO_LIMITS.META_TITLE_MAX_LENGTH}
               </Typography>
             )
           }}
@@ -60,7 +61,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
           InputProps={{
             endAdornment: (
               <Typography variant="caption" sx={{ color: metaDescriptionColor }}>
-                {metaDescriptionLength}/250
+                {metaDescriptionLength}/{SEO_LIMITS.META_DESCRIPTION_MAX_LENGTH}
               </Typography>
             )
           }}

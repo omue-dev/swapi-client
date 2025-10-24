@@ -3,6 +3,7 @@ import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { ProductTableProps } from '../interfaces/types';
+import { UI } from '../constants';
 
 const ProductTable: React.FC<ProductTableProps> = ({ 
   products, 
@@ -79,7 +80,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
         rowCount={totalProducts}
         paginationMode="server"
         onPaginationModelChange={handlePaginationModelChange}
-        pageSizeOptions={[10, 25, 50, 100]}
+        pageSizeOptions={UI.PAGINATION_OPTIONS}
         sortModel={sortModel}
         onSortModelChange={handleSortModelChange}
       />

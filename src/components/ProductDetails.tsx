@@ -1,125 +1,101 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import ProductDescription from './common/ProductDescription';
 import MetaDataFields from './common/MetaDataFields';
 import RelatedProducts from './common/RelatedProducts';
-import { Product } from '../interfaces/types';
+import GenderSelect from './common/GenderSelect';
+import SaveButton from './common/SaveButton';
+import LoadingSpinner from './common/LoadingSpinner';
+import ErrorDisplay from './common/ErrorDisplay';
 import useFetchProduct from '../hooks/useFetchProduct';
 import useFetchRelatedProducts from '../hooks/useFetchRelatedProducts';
 import useUpdateProduct from '../hooks/useUpdateProduct';
+import { useProductForm } from '../hooks/useProductForm';
+import { useSnackbar } from '../hooks/useSnackbar';
+import { useErrorHandler } from '../hooks/useErrorHandler';
+import { validateProduct } from '../utils/validation';
 import './ProductDetails.css';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
 
   const { product: productData, loading: productLoading, error: productError } = useFetchProduct(id || '');
   const { relatedProducts, loading: relatedProductsLoading, error: relatedProductsError } = useFetchRelatedProducts(productData?.name || '');
-  const { updateProduct, loading: updateLoading, error: updateError, success: updateSuccess } = useUpdateProduct();
+  const { updateProduct, loading: updateLoading, error: updateError } = useUpdateProduct();
+  
+  const {
+    product,
+    setProduct,
+    selectedRelatedProducts,
+    setSelectedRelatedProducts,
+    selectAll,
+    setSelectAll,
+    metaTitleLength,
+    metaDescriptionLength,
+    metaTitleColor,
+    metaDescriptionColor,
+    handleMetaTitleChange,
+    handleMetaDescriptionChange,
+    getFormData,
+    handleAdoptContent,
+  } = useProductForm(productData);
+
+  const { showSuccess, showError } = useSnackbar();
+  const { error, handleError, clearError } = useErrorHandler();
 
   useEffect(() => {
-    if (productError) setError(productError);
-    else setProduct(productData);
-  }, [productData, productError]);
+    if (productError) {
+      handleError(productError, 'Failed to load product');
+    }
+  }, [productError, handleError]);
 
   useEffect(() => {
-    if (relatedProductsError) setError(relatedProductsError);
-  }, [relatedProductsError]);
+    if (relatedProductsError) {
+      handleError(relatedProductsError, 'Failed to load related products');
+    }
+  }, [relatedProductsError, handleError]);
 
-  const getFormData = (product: Product) => {
-    const { 
-      id = '', 
-      description = '', 
-      metaDescription = '', 
-      metaTitle = '', 
-      keywords = '', 
-      shortText = '', 
-      gender = ''
-    } = product || {};
-
-    return {
-      id,
-      description,
-      metaDescription,
-      metaTitle,
-      keywords,
-      customFields: {
-        custom_add_product_attributes_short_text: shortText,
-        custom_add_product_attributes_gender: gender,
-      },
-    };
-  };
+  useEffect(() => {
+    if (updateError) {
+      showError(updateError);
+    }
+  }, [updateError, showError]);
 
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!product) return;
+    
+    // Validate product before saving
+    const validation = validateProduct(product);
+    if (!validation.isValid) {
+      handleError(validation.errors.join(', '), 'Validation failed');
+      return;
+    }
+    
     const formData = getFormData(product);
-
     const relatedProductsData = selectedRelatedProducts;
 
     try {
-      setError(null);
+      clearError();
       await updateProduct(
         formData,
         relatedProductsData,
         () => {
-          setSnackbarMessage('Update Successful!');
-          setSnackbarSeverity('success');
-          setSnackbarOpen(true);
+          showSuccess('Update Successful!');
         }
       );
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
+    } catch (err: unknown) {
+      handleError(err, 'Failed to update product');
     }
   };
 
-  const handleAdoptContent = useCallback(() => {
-    const productWithDescription = relatedProducts.find(p => p.description);
-    if (productWithDescription) {
-      setProduct(prevProduct => {
-        if (!prevProduct) return null;
-        return { ...prevProduct, ...productWithDescription };
-      });
-    }
-  }, [relatedProducts]);
-
-  useEffect(() => {
-    if (updateError) {
-      setSnackbarMessage(updateError);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
-  }, [updateError]);
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
+  const handleAdoptContentFromRelated = () => {
+    handleAdoptContent(relatedProducts);
   };
 
-  const handleMetaTitleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newMetaTitle = event.target.value;
-    setProduct(prevProduct => prevProduct ? { ...prevProduct, metaTitle: newMetaTitle } : null);
-  };
-
-  const handleMetaDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newMetaDescription = event.target.value;
-    setProduct(prevProduct => prevProduct ? { ...prevProduct, metaDescription: newMetaDescription } : null);
-  };
-
-  const metaTitleLength = product?.metaTitle?.length || 0;
-  const metaDescriptionLength = product?.metaDescription?.length || 0;
-
-  const metaTitleColor = metaTitleLength <= 80 ? 'green' : 'red';
-  const metaDescriptionColor = metaDescriptionLength <= 250 ? 'green' : 'red';
-
-  if (error) return <Typography color="error">Error: {error}</Typography>;
-  if (productLoading || relatedProductsLoading) return <Typography>Loading...</Typography>;
+  if (error) return <ErrorDisplay error={error} onClose={clearError} />;
+  if (productLoading || relatedProductsLoading) return <LoadingSpinner message="Loading product details..." fullHeight />;
   
   return (
     <Box sx={{ p: 2 }}>
@@ -130,35 +106,15 @@ const ProductDetails: React.FC = () => {
             <ProductDescription product={product} setProduct={setProduct} />
           </Grid>
           <Grid item xs={12} sm={6}>
-            {/* Gender Select List */}
-            <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel id="gender-label">Geschlecht</InputLabel>
-              <Select
-                key={product?.gender || 'no-gender'}
-                labelId="gender-label"
-                id="gender"
-                value={product?.gender || ''}
-                label="Geschlecht"
-                onChange={(e) =>
-                  setProduct((prev) =>
-                    prev ? { ...prev, gender: e.target.value } : prev
-                  )
-                }
-              >
-                <MenuItem value="">–</MenuItem>
-                <MenuItem value="Damen">Damen</MenuItem>
-                <MenuItem value="Herren">Herren</MenuItem>
-                <MenuItem value="Unisex">Unisex</MenuItem>
-              </Select>
-            </FormControl>
-            {relatedProducts.length > 1  && (
+            <GenderSelect product={product} setProduct={setProduct} />
+            {relatedProducts.length > 1 && (
               <RelatedProducts
                 relatedProducts={relatedProducts}
                 selectedRelatedProducts={selectedRelatedProducts}
                 setSelectedRelatedProducts={setSelectedRelatedProducts}
                 selectAll={selectAll}
                 setSelectAll={setSelectAll}
-                handleAdoptContent={handleAdoptContent}
+                handleAdoptContent={handleAdoptContentFromRelated}
               />
             )}
             <MetaDataFields 
@@ -173,17 +129,8 @@ const ProductDetails: React.FC = () => {
             />
           </Grid>
         </Grid>
-        <Box className="sticky-save-button">
-          <Button type="submit" variant="contained" color="primary" onClick={handleSave} disabled={updateLoading}>
-            {updateLoading ? <CircularProgress size={24} /> : 'Save Changes'}
-          </Button>
-        </Box>       
+        <SaveButton loading={updateLoading} onClick={handleSave} />
       </form>
-      <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }} open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity="success" variant="filled" sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

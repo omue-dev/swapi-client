@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
+import { handleApiError } from '../utils/apiHelpers';
 
 const useUpdateProduct = () => {
   const [loading, setLoading] = useState(false);
@@ -45,14 +46,9 @@ const useUpdateProduct = () => {
           setError('Error updating related products');
         }
       }
-    } catch (err: any) {
-      if (err.response) {
-        setError(`Error ${err.response.status}: ${err.response.data.message || 'Unknown error'}`);
-      } else if (err.request) {
-        setError('No response received from the server');
-      } else {
-        setError(err.message || 'Unknown error');
-      }
+    } catch (err: unknown) {
+      const apiError = handleApiError(err);
+      setError(apiError.message);
     } finally {
       setLoading(false);
     }

@@ -7,6 +7,9 @@ import { green, red } from '@mui/material/colors';
 import ClearIcon from '@mui/icons-material/Clear';
 import useFetchInitialProducts from '../hooks/useFetchInitialProducts';
 import debounce from 'lodash.debounce';
+import { UI } from '../constants';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorDisplay from '../components/common/ErrorDisplay';
 
 const Home: React.FC = () => {
   const {
@@ -29,7 +32,7 @@ const Home: React.FC = () => {
   const debouncedFetchProducts = useCallback(
     debounce((searchValue: string) => {
       fetchInitialProducts(searchValue);
-    }, 300),
+    }, UI.DEBOUNCE_DELAY),
     [fetchInitialProducts]
   );
 
@@ -95,11 +98,9 @@ const Home: React.FC = () => {
       </Box>
       }
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-          <CircularProgress />
-        </div>
+        <LoadingSpinner message="Loading products..." />
       ) : error ? (
-        <div>Error: {error.message}</div>
+        <ErrorDisplay error={error.message} />
       ) : (
         <ProductTable
           products={products}

@@ -8,6 +8,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
+import { UI } from '../../constants';
 
 // MUI Icons
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
@@ -168,7 +169,7 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
               border: '1px solid #ccc',
               borderRadius: 2,
               padding: 2,
-              minHeight: 150,
+              minHeight: UI.MIN_EDITOR_HEIGHT,
               fontSize: '1rem',
               lineHeight: 1.5,
               outline: 'none',
