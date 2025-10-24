@@ -15,6 +15,7 @@ const useFetchProduct = (id: string) => {
         const item = response.data.product; // Anpassung hier, um das Produkt korrekt zu extrahieren
         const attributes = item.data.attributes || {};
         const customFields = attributes.customFields || {};
+        const gender = item.gender || attributes.gender || '';
         const categoryIds = attributes.categoryIds || [];
         console.log(attributes);
 
@@ -32,6 +33,7 @@ const useFetchProduct = (id: string) => {
           productNumber: customFields.custom_add_product_attributes_oomodellcode || '',
           shortText: customFields.custom_add_product_attributes_short_text || '',
           stock: attributes.stock || 0,
+          gender,
           status: '',
           hasContent: false,
         };

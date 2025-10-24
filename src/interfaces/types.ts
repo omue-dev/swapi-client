@@ -17,6 +17,7 @@ export interface Manufacturer {
     categoryIds: string[];
     productNumber: string;
     shortText: string | null;
+    gender?: string;
     manufacturerId?: string;
     stock: number;
     updatedAt?: string;

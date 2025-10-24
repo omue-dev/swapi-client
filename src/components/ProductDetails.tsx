@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
 import ProductDescription from './common/ProductDescription';
 import MetaDataFields from './common/MetaDataFields';
 import RelatedProducts from './common/RelatedProducts';
@@ -34,7 +34,15 @@ const ProductDetails: React.FC = () => {
   }, [relatedProductsError]);
 
   const getFormData = (product: Product) => {
-    const { id = '', description = '', metaDescription = '', metaTitle = '', keywords = '', shortText = '' } = product || {};
+    const { 
+      id = '', 
+      description = '', 
+      metaDescription = '', 
+      metaTitle = '', 
+      keywords = '', 
+      shortText = '', 
+      gender = ''
+    } = product || {};
 
     return {
       id,
@@ -42,7 +50,10 @@ const ProductDetails: React.FC = () => {
       metaDescription,
       metaTitle,
       keywords,
-      customFields: { custom_add_product_attributes_short_text: shortText },
+      customFields: {
+        custom_add_product_attributes_short_text: shortText,
+        custom_add_product_attributes_gender: gender,
+      },
     };
   };
 
@@ -119,6 +130,27 @@ const ProductDetails: React.FC = () => {
             <ProductDescription product={product} setProduct={setProduct} />
           </Grid>
           <Grid item xs={12} sm={6}>
+            {/* Gender Select List */}
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="gender-label">Geschlecht</InputLabel>
+              <Select
+                key={product?.gender || 'no-gender'}
+                labelId="gender-label"
+                id="gender"
+                value={product?.gender || ''}
+                label="Geschlecht"
+                onChange={(e) =>
+                  setProduct((prev) =>
+                    prev ? { ...prev, gender: e.target.value } : prev
+                  )
+                }
+              >
+                <MenuItem value="">–</MenuItem>
+                <MenuItem value="Damen">Damen</MenuItem>
+                <MenuItem value="Herren">Herren</MenuItem>
+                <MenuItem value="Unisex">Unisex</MenuItem>
+              </Select>
+            </FormControl>
             {relatedProducts.length > 1  && (
               <RelatedProducts
                 relatedProducts={relatedProducts}
