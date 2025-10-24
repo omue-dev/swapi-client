@@ -41,6 +41,7 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
 
   // 💾 Beschreibung speichern + bereinigen
   const handleBlur = () => {
+    console.log("handleBlur called")
     if (editableRef.current) {
       const raw = showHtml ? editableRef.current.innerText : editableRef.current.innerHTML;
       const cleanHtml = cleanAndFormatDescription(raw); // 👈 EIN Call reicht
