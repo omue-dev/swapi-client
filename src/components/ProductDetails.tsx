@@ -131,7 +131,10 @@ const ProductDetails: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             {/* Gender Select List */}
-            <FormControl fullWidth sx={{ mt: 2 }}>
+            <FormControl fullWidth sx={{ 
+                mt: 2,
+                backgroundColor: '#f1f1f1' 
+              }}>
               <InputLabel id="gender-label">Geschlecht</InputLabel>
               <Select
                 key={product?.gender || 'no-gender'}

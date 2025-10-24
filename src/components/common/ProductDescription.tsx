@@ -1,4 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
+import beautify from 'js-beautify';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-markup'; // Für HTML
+import 'prismjs/themes/prism-tomorrow.css'; // Dunkles Theme
 import { cleanAndFormatDescription } from '../../utils/utils';
 import { Product } from '../../interfaces/types';
 import TextField from '@mui/material/TextField';
@@ -39,12 +43,18 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
     }
   }, [product?.description]);
 
+  // 🧠 Prism Highlighting neu anwenden, wenn HTML-Ansicht aktiviert wird
+  useEffect(() => {
+    if (showHtml) {
+      Prism.highlightAll();
+    }
+  }, [showHtml, product?.description]);
+
   // 💾 Beschreibung speichern + bereinigen
   const handleBlur = () => {
-    console.log("handleBlur called")
     if (editableRef.current) {
       const raw = showHtml ? editableRef.current.innerText : editableRef.current.innerHTML;
-      const cleanHtml = cleanAndFormatDescription(raw); // 👈 EIN Call reicht
+      const cleanHtml = cleanAndFormatDescription(raw);
       setProduct(prev => ({ ...prev!, description: cleanHtml }));
     }
   };
@@ -52,24 +62,23 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
   // 🧩 HTML beim Einfügen erhalten (Copy & Paste aus Word/GPT)
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     e.preventDefault();
-
     const clipboardData = e.clipboardData;
     const html = clipboardData.getData('text/html');
     const text = clipboardData.getData('text/plain');
-
-    // Wenn HTML existiert → direkt einfügen
     if (html) {
       document.execCommand('insertHTML', false, html);
     } else {
-      // Fallback: Nur Text
       document.execCommand('insertText', false, text);
     }
   };
 
   // ✨ Formatierungsaktionen (Fett, Kursiv usw.)
   const exec = (cmd: string, value?: string) => {
-    document.execCommand(cmd, false, value);
-    handleBlur();
+    if (editableRef.current) {
+      editableRef.current.focus();
+      document.execCommand(cmd, false, value);
+      handleBlur();
+    }
   };
 
   // 🔗 Link einfügen
@@ -89,6 +98,19 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
   };
 
   const handleMouseOut = () => setHoveredTag(null);
+
+  // 🪄 Formatierung + Highlighting für HTML-Codeansicht
+  const getFormattedAndHighlightedHtml = () => {
+    const formatted = beautify.html(product?.description || '', {
+      indent_size: 2,
+      wrap_line_length: 80,
+      preserve_newlines: true,
+      unformatted: ['code', 'pre', 'em', 'strong', 'span'],
+    });
+
+    const highlighted = Prism.highlight(formatted, Prism.languages.markup, 'markup');
+    return `<pre class="language-markup"><code>${highlighted}</code></pre>`;
+  };
 
   return (
     <Box mt={2}>
@@ -115,11 +137,14 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
         {/* 🛠️ Toolbar */}
         <Box
           sx={{
+            position: 'sticky',
+            top: 0,
+            backgroundColor: '#f1f1f1',
+            zIndex: 10,
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
             border: '1px solid #ddd',
-            borderRadius: 2,
             mb: 1,
             p: 0.5,
           }}
@@ -152,7 +177,7 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
         >
           <Box
             ref={editableRef}
-            contentEditable
+            contentEditable={!showHtml} // HTML-Ansicht nur lesbar!
             suppressContentEditableWarning
             onBlur={handleBlur}
             onPaste={handlePaste}
@@ -160,10 +185,8 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
             onMouseOut={handleMouseOut}
             dangerouslySetInnerHTML={{
               __html: showHtml
-                ? (product?.description || '')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;') // zeigt HTML-Code an
-                : product?.description || '', // rendert echtes HTML
+                ? getFormattedAndHighlightedHtml()
+                : product?.description || '',
             }}
             sx={{
               border: '1px solid #ccc',
@@ -176,6 +199,9 @@ const ProductDescription: React.FC<ProductDescriptionProps> = ({ product, setPro
               cursor: 'text',
               fontFamily: showHtml ? 'monospace' : 'inherit',
               whiteSpace: showHtml ? 'pre-wrap' : 'normal',
+              backgroundColor: showHtml ? '#1e1e1e' : 'transparent',
+              color: showHtml ? '#f1f1f1' : 'inherit',
+              overflowX: 'auto',
             }}
           />
         </Tooltip>
