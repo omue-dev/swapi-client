@@ -26,7 +26,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
 }) => {
   return (
     <>
-      <Box mb={2}>
+      <Box mt={2}>
         <TextField
           label="Meta Title"
           multiline
@@ -46,7 +46,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
           }}
         />
       </Box>
-      <Box mb={2}>
+      <Box mt={2}>
         <TextField
           label="Meta Description"
           multiline
