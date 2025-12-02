@@ -13,12 +13,18 @@ const breadcrumbNameMap: { [key: string]: string } = {
 
 const Breadcrumbs: React.FC = () => {
   const location = useLocation();
-  const pathSnippets = location.pathname.split("/").filter(i => i);
+  const pathSnippets = location.pathname.split("/").filter((i) => i);
 
   const breadcrumbItems = [
-    <Link component={RouterLink} to="/" key="home" underline="hover" color="inherit">
+    <Link
+      component={RouterLink}
+      to="/"
+      key="home"
+      underline="hover"
+      color="inherit"
+    >
       Home
-    </Link>
+    </Link>,
   ];
 
   pathSnippets.forEach((_, index) => {
@@ -30,7 +36,7 @@ const Breadcrumbs: React.FC = () => {
 
     // Dynamische Routen behandeln, z.B. /product/:id
     if (!breadcrumbName && url.includes("/product/")) {
-      breadcrumbName = "Artikel Details";  // Anzeigename für Produkte, nicht die ID anzeigen
+      breadcrumbName = "Artikel Details"; // Anzeigename für Produkte, nicht die ID anzeigen
     }
 
     breadcrumbItems.push(
@@ -39,15 +45,24 @@ const Breadcrumbs: React.FC = () => {
           {breadcrumbName || url} {/* Anzeigename oder URL anzeigen */}
         </Typography>
       ) : (
-        <Link component={RouterLink} to={url} key={url} underline="hover" color="inherit">
+        <Link
+          component={RouterLink}
+          to={url}
+          key={url}
+          underline="hover"
+          color="inherit"
+        >
           {breadcrumbName || url} {/* Anzeigename oder URL anzeigen */}
         </Link>
-      )
+      ),
     );
   });
 
   return (
-    <MUIBreadcrumbs aria-label="breadcrumb" style={{ display: 'flex', alignItems: 'center', marginTop: "20px" }}>
+    <MUIBreadcrumbs
+      aria-label="breadcrumb"
+      style={{ display: "flex", alignItems: "center", marginTop: "20px" }}
+    >
       {breadcrumbItems}
     </MUIBreadcrumbs>
   );

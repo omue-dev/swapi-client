@@ -3,12 +3,18 @@ interface Supplier {
   LieferantNr: string;
   Name: string;
 }
-  
-  export const getSupplierName = (params: any, suppliers: Supplier[] = []) => {
-    //console.log('params:', params);
-    //console.log('suppliers:', suppliers);
-    const supplierNumber = String(params);
-    const supplier = suppliers.find(supplier => supplier.LieferantNr === supplierNumber);
-    return supplier ? supplier.Name : 'Unknown Supplier (' + supplierNumber +')';
-  };
-  
+
+export const getSupplierName = (
+  supplierNumber: string | number,
+  suppliers: Supplier[] = [],
+) => {
+  //console.log('supplierNumber:', supplierNumber);
+  //console.log('suppliers:', suppliers);
+  const supplierNumberStr = String(supplierNumber);
+  const supplier = suppliers.find(
+    (supplierItem) => supplierItem.LieferantNr === supplierNumberStr,
+  );
+  return supplier
+    ? supplier.Name
+    : "Unknown Supplier (" + supplierNumberStr + ")";
+};

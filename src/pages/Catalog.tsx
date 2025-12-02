@@ -1,12 +1,20 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import ProductTable from '../components/ProductTable';
-import { Container, TextField, InputAdornment, IconButton, CircularProgress, Button, Box } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { green, red } from '@mui/material/colors';
-import ClearIcon from '@mui/icons-material/Clear';
-import useFetchInitialProducts from '../hooks/useFetchInitialProducts';
-import debounce from 'lodash.debounce';
+/* eslint-env browser */
+import React, { useEffect, useCallback, useState } from "react";
+import ProductTable from "../components/ProductTable";
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  Button,
+  Box,
+} from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { green, red } from "@mui/material/colors";
+import ClearIcon from "@mui/icons-material/Clear";
+import useFetchInitialProducts from "../hooks/useFetchInitialProducts";
+import debounce from "lodash.debounce";
 
 const Home: React.FC = () => {
   const {
@@ -24,23 +32,26 @@ const Home: React.FC = () => {
     fetchInitialProducts,
   } = useFetchInitialProducts();
 
-  const [selectedManufacturer, setSelectedManufacturer] = useState<string | null>(null);
+  const [selectedManufacturer, setSelectedManufacturer] = useState<
+    string | null
+  >(null);
 
   const debouncedFetchProducts = useCallback(
     debounce((searchValue: string) => {
       fetchInitialProducts(searchValue);
     }, 300),
-    [fetchInitialProducts]
+    [fetchInitialProducts],
   );
 
   useEffect(() => {
-    const storedManufacturerId = localStorage.getItem('manufacturerId');
+    const storedManufacturerId = window.localStorage.getItem("manufacturerId");
     if (storedManufacturerId) {
       setManufacturerIdFilter(storedManufacturerId);
       setSelectedManufacturer(storedManufacturerId);
     }
   }, [setManufacturerIdFilter]);
 
+  // eslint-disable-next-line no-undef
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = event.target.value;
     setSearchTerm(searchValue);
@@ -48,15 +59,15 @@ const Home: React.FC = () => {
   };
 
   const handleClearSearch = () => {
-    setSearchTerm('');
-    fetchInitialProducts('');
+    setSearchTerm("");
+    fetchInitialProducts("");
   };
 
   const handleManufacturerClick = (manufacturerId: string) => {
     console.log("Manufacturer clicked:", manufacturerId); // Log the manufacturerId
     setManufacturerIdFilter(manufacturerId);
     setSelectedManufacturer(manufacturerId);
-    localStorage.setItem('manufacturerId', manufacturerId);
+    window.localStorage.setItem("manufacturerId", manufacturerId);
     // No need to call fetchInitialProducts here, useEffect will handle it
   };
 
@@ -64,7 +75,7 @@ const Home: React.FC = () => {
     console.log("Clearing manufacturer filter");
     setManufacturerIdFilter(null);
     setSelectedManufacturer(null);
-    localStorage.removeItem('manufacturerId');
+    window.localStorage.removeItem("manufacturerId");
     fetchInitialProducts(searchTerm); // Fetch products without manufacturer filter
   };
 
@@ -87,15 +98,26 @@ const Home: React.FC = () => {
           ),
         }}
       />
-       {selectedManufacturer &&
-      <Box display="flex" alignItems="center" mb={2}>
-        <Button onClick={handleClearManufacturerFilter} variant="outlined" color="secondary" style={{ marginRight: '10px' }}>
-          Clear Manufacturer Filter
-        </Button>
-      </Box>
-      }
+      {selectedManufacturer && (
+        <Box display="flex" alignItems="center" mb={2}>
+          <Button
+            onClick={handleClearManufacturerFilter}
+            variant="outlined"
+            color="secondary"
+            style={{ marginRight: "10px" }}
+          >
+            Clear Manufacturer Filter
+          </Button>
+        </Box>
+      )}
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "20px",
+          }}
+        >
           <CircularProgress />
         </div>
       ) : error ? (
@@ -109,7 +131,7 @@ const Home: React.FC = () => {
           sortModel={sortModel}
           setSortModel={setSortModel}
           renderStatusIcon={(status: string) => {
-            return status === 'Active' ? (
+            return status === "Active" ? (
               <CheckCircleIcon style={{ color: green[500] }} />
             ) : (
               <CancelIcon style={{ color: red[500] }} />

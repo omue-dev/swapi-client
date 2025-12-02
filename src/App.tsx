@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import { createTheme, ThemeProvider, CssBaseline, Container, Box } from "@mui/material";
+import {
+  createTheme,
+  ThemeProvider,
+  CssBaseline,
+  Container,
+  Box,
+} from "@mui/material";
 import Navbar from "./components/Navbar";
 import AppRoutes from "./routes";
 import Breadcrumbs from "./components/Breadcrumbs";
@@ -20,15 +26,27 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Box className="layout" sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Box
+          className="layout"
+          sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        >
           <Box component="header" className="header">
             <Navbar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           </Box>
-          <Box component="main" className="content" sx={{ flexGrow: 1, padding: 0 }}>
+          <Box
+            component="main"
+            className="content"
+            sx={{ flexGrow: 1, padding: 0 }}
+          >
             {/* Container with adjusted padding */}
-            <Container 
+            <Container
               maxWidth={false} // Removes the maxWidth limit
-              sx={{ paddingLeft: '0px', paddingRight: '0px', margin: '0', width: '100%' }} // Ensures full width without padding
+              sx={{
+                paddingLeft: "0px",
+                paddingRight: "0px",
+                margin: "0",
+                width: "100%",
+              }} // Ensures full width without padding
             >
               <Breadcrumbs />
               <Box className="content-div">
@@ -36,7 +54,11 @@ const App: React.FC = () => {
               </Box>
             </Container>
           </Box>
-          <Box component="footer" className="footer" sx={{ py: 3, textAlign: 'center' }}>
+          <Box
+            component="footer"
+            className="footer"
+            sx={{ py: 3, textAlign: "center" }}
+          >
             swapi ©{new Date().getFullYear()} Created by cocapi
           </Box>
         </Box>

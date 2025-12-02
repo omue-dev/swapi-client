@@ -1,28 +1,56 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Grid, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
-import ProductDescription from './common/ProductDescription';
-import MetaDataFields from './common/MetaDataFields';
-import RelatedProducts from './common/RelatedProducts';
-import { Product } from '../interfaces/types';
-import useFetchProduct from '../hooks/useFetchProduct';
-import useFetchRelatedProducts from '../hooks/useFetchRelatedProducts';
-import useUpdateProduct from '../hooks/useUpdateProduct';
-import './ProductDetails.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+  Typography,
+  Grid,
+  Button,
+  Snackbar,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
+import ProductDescription from "./common/ProductDescription";
+import MetaDataFields from "./common/MetaDataFields";
+import RelatedProducts from "./common/RelatedProducts";
+import { Product } from "../interfaces/types";
+import useFetchProduct from "../hooks/useFetchProduct";
+import useFetchRelatedProducts from "../hooks/useFetchRelatedProducts";
+import useUpdateProduct from "../hooks/useUpdateProduct";
+import "./ProductDetails.css";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<string[]>([]);
+  const [selectedRelatedProducts, setSelectedRelatedProducts] = useState<
+    string[]
+  >([]);
   const [selectAll, setSelectAll] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [, setSnackbarSeverity] = useState<
+    "success" | "error" | "info" | "warning"
+  >("info");
 
-  const { product: productData, loading: productLoading, error: productError } = useFetchProduct(id || '');
-  const { relatedProducts, loading: relatedProductsLoading, error: relatedProductsError } = useFetchRelatedProducts(productData?.name || '');
-  const { updateProduct, loading: updateLoading, error: updateError, success: updateSuccess } = useUpdateProduct();
+  const {
+    product: productData,
+    loading: productLoading,
+    error: productError,
+  } = useFetchProduct(id || "");
+  const {
+    relatedProducts,
+    loading: relatedProductsLoading,
+    error: relatedProductsError,
+  } = useFetchRelatedProducts(productData?.name || "");
+  const {
+    updateProduct,
+    loading: updateLoading,
+    error: updateError,
+  } = useUpdateProduct();
 
   useEffect(() => {
     if (productError) setError(productError);
@@ -34,14 +62,14 @@ const ProductDetails: React.FC = () => {
   }, [relatedProductsError]);
 
   const getFormData = (product: Product) => {
-    const { 
-      id = '', 
-      description = '', 
-      metaDescription = '', 
-      metaTitle = '', 
-      keywords = '', 
-      shortText = '', 
-      gender = ''
+    const {
+      id = "",
+      description = "",
+      metaDescription = "",
+      metaTitle = "",
+      keywords = "",
+      shortText = "",
+      gender = "",
     } = product || {};
 
     return {
@@ -66,26 +94,39 @@ const ProductDetails: React.FC = () => {
 
     try {
       setError(null);
-      await updateProduct(
-        formData,
-        relatedProductsData,
-        () => {
-          setSnackbarMessage('Update Successful!');
-          setSnackbarSeverity('success');
-          setSnackbarOpen(true);
-        }
-      );
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
+      await updateProduct(formData, relatedProductsData, () => {
+        setSnackbarMessage("Update Successful!");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error");
+      }
     }
   };
 
   const handleAdoptContent = useCallback(() => {
-    const productWithDescription = relatedProducts.find(p => p.description);
+    const productWithDescription = relatedProducts.find((p) => p.description);
+
     if (productWithDescription) {
-      setProduct(prevProduct => {
+      setProduct((prevProduct) => {
         if (!prevProduct) return null;
-        return { ...prevProduct, ...productWithDescription };
+
+        return {
+          ...prevProduct,
+          description:
+            productWithDescription.description || prevProduct.description,
+          shortText: productWithDescription.shortText || prevProduct.shortText,
+          metaTitle: productWithDescription.metaTitle || prevProduct.metaTitle,
+          metaDescription:
+            productWithDescription.metaDescription ||
+            prevProduct.metaDescription,
+          keywords: productWithDescription.keywords || prevProduct.keywords,
+          gender: productWithDescription.gender || prevProduct.gender,
+        };
       });
     }
   }, [relatedProducts]);
@@ -93,7 +134,7 @@ const ProductDetails: React.FC = () => {
   useEffect(() => {
     if (updateError) {
       setSnackbarMessage(updateError);
-      setSnackbarSeverity('error');
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   }, [updateError]);
@@ -102,28 +143,43 @@ const ProductDetails: React.FC = () => {
     setSnackbarOpen(false);
   };
 
-  const handleMetaTitleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleMetaTitleChange = (
+    // eslint-disable-next-line no-undef
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const newMetaTitle = event.target.value;
-    setProduct(prevProduct => prevProduct ? { ...prevProduct, metaTitle: newMetaTitle } : null);
+    setProduct((prevProduct) =>
+      prevProduct ? { ...prevProduct, metaTitle: newMetaTitle } : null,
+    );
   };
 
-  const handleMetaDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleMetaDescriptionChange = (
+    // eslint-disable-next-line no-undef
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const newMetaDescription = event.target.value;
-    setProduct(prevProduct => prevProduct ? { ...prevProduct, metaDescription: newMetaDescription } : null);
+    setProduct((prevProduct) =>
+      prevProduct
+        ? { ...prevProduct, metaDescription: newMetaDescription }
+        : null,
+    );
   };
 
   const metaTitleLength = product?.metaTitle?.length || 0;
   const metaDescriptionLength = product?.metaDescription?.length || 0;
 
-  const metaTitleColor = metaTitleLength <= 80 ? 'green' : 'red';
-  const metaDescriptionColor = metaDescriptionLength <= 250 ? 'green' : 'red';
+  const metaTitleColor = metaTitleLength <= 80 ? "green" : "red";
+  const metaDescriptionColor = metaDescriptionLength <= 250 ? "green" : "red";
 
   if (error) return <Typography color="error">Error: {error}</Typography>;
-  if (productLoading || relatedProductsLoading) return <Typography>Loading...</Typography>;
-  
+  if (productLoading || relatedProductsLoading)
+    return <Typography>Loading...</Typography>;
+
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>{product?.productNumber} - {product?.name}</Typography>
+      <Typography variant="h6" gutterBottom>
+        {product?.productNumber} - {product?.name}
+      </Typography>
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -134,14 +190,14 @@ const ProductDetails: React.FC = () => {
             <FormControl fullWidth sx={{ mt: 2 }}>
               <InputLabel id="gender-label">Geschlecht</InputLabel>
               <Select
-                key={product?.gender || 'no-gender'}
+                key={product?.gender || "no-gender"}
                 labelId="gender-label"
                 id="gender"
-                value={product?.gender || ''}
+                value={product?.gender || ""}
                 label="Geschlecht"
                 onChange={(e) =>
                   setProduct((prev) =>
-                    prev ? { ...prev, gender: e.target.value } : prev
+                    prev ? { ...prev, gender: e.target.value } : prev,
                   )
                 }
               >
@@ -151,7 +207,7 @@ const ProductDetails: React.FC = () => {
                 <MenuItem value="Unisex">Unisex</MenuItem>
               </Select>
             </FormControl>
-            {relatedProducts.length > 1  && (
+            {relatedProducts.length > 1 && (
               <RelatedProducts
                 relatedProducts={relatedProducts}
                 selectedRelatedProducts={selectedRelatedProducts}
@@ -161,10 +217,10 @@ const ProductDetails: React.FC = () => {
                 handleAdoptContent={handleAdoptContent}
               />
             )}
-            <MetaDataFields 
-              product={product} 
+            <MetaDataFields
+              product={product}
               setProduct={setProduct}
-              metaTitleColor={metaTitleColor} 
+              metaTitleColor={metaTitleColor}
               metaDescriptionColor={metaDescriptionColor}
               metaTitleLength={metaTitleLength}
               metaDescriptionLength={metaDescriptionLength}
@@ -174,13 +230,29 @@ const ProductDetails: React.FC = () => {
           </Grid>
         </Grid>
         <Box className="sticky-save-button">
-          <Button type="submit" variant="contained" color="primary" onClick={handleSave} disabled={updateLoading}>
-            {updateLoading ? <CircularProgress size={24} /> : 'Save Changes'}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={updateLoading}
+          >
+            {updateLoading ? <CircularProgress size={24} /> : "Save Changes"}
           </Button>
-        </Box>       
+        </Box>
       </form>
-      <Snackbar anchorOrigin={{ vertical: "top", horizontal: "center" }} open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity="success" variant="filled" sx={{ width: '100%' }}>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

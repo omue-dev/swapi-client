@@ -1,7 +1,13 @@
-import React from 'react';
-import { Checkbox, FormControlLabel, FormGroup, Typography, Button, Box } from '@mui/material';
-import DescriptionIcon from '@mui/icons-material/Description'; // Import des Icons
-import { Product } from '../../interfaces/types';
+import React from "react";
+import {
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Button,
+  Box,
+} from "@mui/material";
+import DescriptionIcon from "@mui/icons-material/Description"; // Import des Icons
+import { Product } from "../../interfaces/types";
 
 interface RelatedProductsProps {
   relatedProducts: Product[];
@@ -22,9 +28,12 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
   handleAdoptContent,
   horizontal = false, // Standardwert ist false
 }) => {
-  const handleSelectAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectAllChange = (
+    // eslint-disable-next-line no-undef
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (event.target.checked) {
-      setSelectedRelatedProducts(relatedProducts.map(p => p.id));
+      setSelectedRelatedProducts(relatedProducts.map((p) => p.id));
     } else {
       setSelectedRelatedProducts([]);
     }
@@ -32,19 +41,30 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
   };
 
   const handleProductChange = (id: string) => {
-    setSelectedRelatedProducts(prevSelected =>
-      prevSelected.includes(id) ? prevSelected.filter(pid => pid !== id) : [...prevSelected, id]
+    setSelectedRelatedProducts((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((pid) => pid !== id)
+        : [...prevSelected, id],
     );
   };
 
   return (
-    <div style={{ display: horizontal ? 'flex' : 'block', alignItems: 'center', border: '1px dashed #333', padding: '20px' }}>
+    <div
+      style={{
+        display: horizontal ? "flex" : "block",
+        alignItems: "center",
+        border: "1px dashed #333",
+        padding: "20px",
+      }}
+    >
       <FormGroup row={horizontal}>
         <FormControlLabel
-          control={<Checkbox checked={selectAll} onChange={handleSelectAllChange} />}
+          control={
+            <Checkbox checked={selectAll} onChange={handleSelectAllChange} />
+          }
           label="Select All"
         />
-        {relatedProducts.map(product => (
+        {relatedProducts.map((product) => (
           <Box key={product.id} display="flex" alignItems="center">
             <FormControlLabel
               control={
@@ -55,7 +75,9 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
               }
               label={product.name}
             />
-            {product.description && <DescriptionIcon style={{ marginLeft: 8 }} />}
+            {product.description && (
+              <DescriptionIcon style={{ marginLeft: 8 }} />
+            )}
           </Box>
         ))}
       </FormGroup>

@@ -5,7 +5,10 @@ const stripCitationsAndLinks = (html: string): string => {
   if (!html) return "";
 
   // komplette "webpage-citation-pill" inkl. verschachtelter Spans entfernen
-  html = html.replace(/<span[^>]*data-testid="webpage-citation-pill"[^>]*>[\s\S]*?<\/span>/gi, "");
+  html = html.replace(
+    /<span[^>]*data-testid="webpage-citation-pill"[^>]*>[\s\S]*?<\/span>/gi,
+    "",
+  );
   // evtl. umschließende, leere Container-Spans, die nur die Pill enthalten haben
   html = html.replace(/<span[^>]*>\s*<\/span>/gi, "");
 
@@ -20,18 +23,48 @@ const safeSanitize = (html: string): string => {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       // Text/Struktur
-      "p", "br", "div", "span", "strong", "em", "b", "i", "u",
-      "h1", "h2", "h3", "h4", "h5", "h6",
+      "p",
+      "br",
+      "div",
+      "span",
+      "strong",
+      "em",
+      "b",
+      "i",
+      "u",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
       // Listen
-      "ul", "ol", "li",
+      "ul",
+      "ol",
+      "li",
       // Tabellen
-      "figure", "table", "thead", "tbody", "tr", "th", "td",
+      "figure",
+      "table",
+      "thead",
+      "tbody",
+      "tr",
+      "th",
+      "td",
       // Sonstiges
-      "hr", "blockquote", "pre", "code"
+      "hr",
+      "blockquote",
+      "pre",
+      "code",
     ],
     // Nur die Attribute, die im Shop wirklich gebraucht werden
     ALLOWED_ATTR: [
-      "style", "colspan", "rowspan", "align", "scope", "width", "height"
+      "style",
+      "colspan",
+      "rowspan",
+      "align",
+      "scope",
+      "width",
+      "height",
     ],
     ALLOW_DATA_ATTR: false, // ← killt data-start / data-end direkt
   });
@@ -39,15 +72,25 @@ const safeSanitize = (html: string): string => {
 
 /** 3) Unerwünschte Attribute restlos entfernen (id, class, aria-*, data-*, tabindex, role, contenteditable, draggable …) */
 const stripUnwantedAttributes = (html: string): string => {
+  // eslint-disable-next-line no-undef
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
-  const allowed = new Set(["style", "colspan", "rowspan", "align", "scope", "width", "height"]);
+  const allowed = new Set([
+    "style",
+    "colspan",
+    "rowspan",
+    "align",
+    "scope",
+    "width",
+    "height",
+  ]);
 
-    doc.body.querySelectorAll("*").forEach((el) => {
+  doc.body.querySelectorAll("*").forEach((el) => {
     // NamedNodeMap zu Array casten
     const attrs = Array.from(el.attributes);
 
+    // eslint-disable-next-line no-undef
     attrs.forEach((attr: Attr) => {
       const name = attr.name.toLowerCase();
       const isForbiddenPrefix =
@@ -67,7 +110,6 @@ const stripUnwantedAttributes = (html: string): string => {
     });
   });
 
-
   return doc.body.innerHTML;
 };
 
@@ -81,44 +123,49 @@ export const formatTablesForShop = (html: string): string => {
   html = html.replace(/<\/div>/gi, "");
 
   // Jede Tabelle in <figure> einwickeln (falls nicht schon)
-  html = html.replace(/(?<!<figure>)\s*(<table[\s\S]*?<\/table>)/gi, "<figure>$1</figure>");
+  html = html.replace(
+    /(?<!<figure>)\s*(<table[\s\S]*?<\/table>)/gi,
+    "<figure>$1</figure>",
+  );
 
   // Grundstyles für table/th/td ergänzen, wenn nicht vorhanden
   html = html.replace(
     /<table(?![^>]*style=)/gi,
-    `<table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; margin: 20px 0;"`
+    `<table style="width: 100%; border-collapse: collapse; font-size: 16px; text-align: left; margin: 20px 0;"`,
   );
   html = html.replace(
     /<th(?![^>]*style=)/gi,
-    `<th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;"`
+    `<th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;"`,
   );
   html = html.replace(
     /<td(?![^>]*style=)/gi,
-    `<td style="padding: 16px; border: 1px solid #ddd;"`
+    `<td style="padding: 16px; border: 1px solid #ddd;"`,
   );
 
   // Zebra-Streifen: jede 2. <tr> im <tbody>
   // Grundstyles für table/th/td ergänzen, wenn nicht vorhanden
   html = html.replace(
     /<table(?![^>]*style=)/gi,
-    `<table style="width: auto; max-width: 700px; border-collapse: collapse; font-size: 16px; text-align: left; margin: 20px auto; border-spacing: 0;"`
+    `<table style="width: auto; max-width: 700px; border-collapse: collapse; font-size: 16px; text-align: left; margin: 20px auto; border-spacing: 0;"`,
   );
 
-
-   // 💣 Entfernt fehlerhafte, leere oder zerstückelte Table-Header-Zeilen
-  html = html.replace(/<th[^>]*?(?:thead|ead)[^>]*?><tr>[\s\S]*?<\/thead>/gi, "");
+  // 💣 Entfernt fehlerhafte, leere oder zerstückelte Table-Header-Zeilen
+  html = html.replace(
+    /<th[^>]*?(?:thead|ead)[^>]*?><tr>[\s\S]*?<\/thead>/gi,
+    "",
+  );
   html = html.replace(/<th[^>]*>\s*<\/th>/gi, ""); // komplett leere <th>
   html = html.replace(/<thead[^>]*>\s*<\/thead>/gi, ""); // leere thead-Wrapper
   html = html.replace(/<tr[^>]*>\s*<\/tr>/gi, ""); // komplett leere Tabellenzeilen
 
-
   // 🧮 Erste Spalte dynamisch: max 50%, aber flexibel bei kürzerem Text
   // 🧮 Erste Spalte dynamisch – max 50%, darf umbrechen
-const parser = new DOMParser();
-const doc = parser.parseFromString(html, "text/html");
+  // eslint-disable-next-line no-undef
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
 
-doc.querySelectorAll("table").forEach((table) => {
-  const rows = table.querySelectorAll("tr");
+  doc.querySelectorAll("table").forEach((table) => {
+    const rows = table.querySelectorAll("tr");
     rows.forEach((row) => {
       const firstCell = row.querySelector("td:first-child");
       if (firstCell) {
@@ -137,6 +184,7 @@ doc.querySelectorAll("table").forEach((table) => {
 /** 5) <li><p>…</p></li> zu <li>…</li> umschreiben */
 export const unwrapLiParagraphs = (html: string): string => {
   if (!html) return "";
+  // eslint-disable-next-line no-undef
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
@@ -156,9 +204,9 @@ export const unwrapLiParagraphs = (html: string): string => {
 /** 🔥 Alles-in-einem: Clean + Strip + Format */
 export const cleanAndFormatDescription = (html: string): string => {
   let out = stripCitationsAndLinks(html);
-  out = safeSanitize(out);                 // data-* ist hier schon weg
-  out = stripUnwantedAttributes(out);      // falls noch id/class/aria… überlebt haben
-  out = unwrapLiParagraphs(out);           // <li><p>…</p></li> → <li>…</li>
-  out = formatTablesForShop(out);          // schönes Shop-Layout
+  out = safeSanitize(out); // data-* ist hier schon weg
+  out = stripUnwantedAttributes(out); // falls noch id/class/aria… überlebt haben
+  out = unwrapLiParagraphs(out); // <li><p>…</p></li> → <li>…</li>
+  out = formatTablesForShop(out); // schönes Shop-Layout
   return out.trim();
 };

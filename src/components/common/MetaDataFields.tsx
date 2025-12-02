@@ -1,7 +1,7 @@
-import React from 'react';
-import { Product } from '../../interfaces/types';
-import TextField from '@mui/material/TextField';
-import { Typography, Box } from '@mui/material';
+import React from "react";
+import { Product } from "../../interfaces/types";
+import TextField from "@mui/material/TextField";
+import { Typography, Box } from "@mui/material";
 
 interface MetaDataFieldsProps {
   product: Product | null;
@@ -10,8 +10,14 @@ interface MetaDataFieldsProps {
   metaDescriptionColor: string;
   metaTitleLength: number;
   metaDescriptionLength: number;
-  handleMetaTitleChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  handleMetaDescriptionChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleMetaTitleChange: (
+    // eslint-disable-next-line no-undef
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  handleMetaDescriptionChange: (
+    // eslint-disable-next-line no-undef
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
 }
 
 const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
@@ -22,7 +28,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
   metaTitleLength,
   metaDescriptionLength,
   handleMetaTitleChange,
-  handleMetaDescriptionChange
+  handleMetaDescriptionChange,
 }) => {
   return (
     <>
@@ -32,9 +38,11 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
           multiline
           fullWidth
           rows={3}
-          value={product?.metaTitle || ''}
+          value={product?.metaTitle || ""}
           onChange={(e) => {
-            setProduct(prev => prev ? { ...prev, metaTitle: e.target.value } : null);
+            setProduct((prev) =>
+              prev ? { ...prev, metaTitle: e.target.value } : null,
+            );
             handleMetaTitleChange(e);
           }}
           InputProps={{
@@ -42,7 +50,7 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
               <Typography variant="caption" sx={{ color: metaTitleColor }}>
                 {metaTitleLength}/80
               </Typography>
-            )
+            ),
           }}
         />
       </Box>
@@ -52,17 +60,22 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
           multiline
           fullWidth
           rows={6}
-          value={product?.metaDescription || ''}
+          value={product?.metaDescription || ""}
           onChange={(e) => {
-            setProduct(prev => prev ? { ...prev, metaDescription: e.target.value } : null);
+            setProduct((prev) =>
+              prev ? { ...prev, metaDescription: e.target.value } : null,
+            );
             handleMetaDescriptionChange(e);
           }}
           InputProps={{
             endAdornment: (
-              <Typography variant="caption" sx={{ color: metaDescriptionColor }}>
+              <Typography
+                variant="caption"
+                sx={{ color: metaDescriptionColor }}
+              >
                 {metaDescriptionLength}/250
               </Typography>
-            )
+            ),
           }}
         />
       </Box>
@@ -71,8 +84,12 @@ const MetaDataFields: React.FC<MetaDataFieldsProps> = ({
         multiline
         fullWidth
         rows={6}
-        value={product?.keywords || ''}
-        onChange={(e) => setProduct(prev => prev ? { ...prev, keywords: e.target.value } : null)}
+        value={product?.keywords || ""}
+        onChange={(e) =>
+          setProduct((prev) =>
+            prev ? { ...prev, keywords: e.target.value } : null,
+          )
+        }
       />
     </>
   );

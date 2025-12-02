@@ -1,15 +1,30 @@
-import { useState, useEffect } from 'react';
-import axiosInstance from '../utils/axiosInstance';
-import { Manufacturer } from '../interfaces/types';
+import { useState, useEffect } from "react";
+import axiosInstance from "../utils/axiosInstance";
+import { Manufacturer } from "../interfaces/types";
 
-const mapResponseToManufacturers = (data: any): Manufacturer[] => {
-  if (!data || !data.data) {
-    console.error('Invalid data format:', data);
+interface ManufacturerAttributes {
+  name: string;
+}
+
+interface ManufacturerResponseItem {
+  id: string;
+  attributes: ManufacturerAttributes;
+}
+
+interface ManufacturerResponse {
+  data?: ManufacturerResponseItem[];
+}
+
+const mapResponseToManufacturers = (
+  data: ManufacturerResponse,
+): Manufacturer[] => {
+  if (!data?.data) {
+    console.error("Invalid data format:", data);
     return [];
   }
 
   return data.data
-    .map((item: any) => ({
+    .map((item) => ({
       id: item.id,
       name: item.attributes.name,
     }))
@@ -24,12 +39,12 @@ const useFetchManufacturers = () => {
   useEffect(() => {
     const fetchManufacturers = async () => {
       try {
-        const response = await axiosInstance.post('/product-manufacturer');
+        const response = await axiosInstance.post("/product-manufacturer");
         const manufacturersData = mapResponseToManufacturers(response.data);
         setManufacturers(manufacturersData);
       } catch (err) {
-        setError('Error fetching manufacturers');
-        console.error('Error fetching manufacturers:', err);
+        setError("Error fetching manufacturers");
+        console.error("Error fetching manufacturers:", err);
       } finally {
         setLoading(false);
       }

@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import axiosInstance from '../utils/axiosInstance';
+import { useState } from "react";
+import type { AxiosError } from "axios";
+import axiosInstance from "../utils/axiosInstance";
+
+type UpdateFormData = Record<string, unknown>;
+type OnSuccessCallback = (updatedProduct: unknown) => void;
 
 const useUpdateProduct = () => {
   const [loading, setLoading] = useState(false);
@@ -7,9 +11,9 @@ const useUpdateProduct = () => {
   const [success, setSuccess] = useState<boolean>(false);
 
   const updateProduct = async (
-    formData: any,
-    relatedProductsData: any[],
-    onSuccess?: (updatedProduct: any) => void
+    formData: UpdateFormData,
+    relatedProductsData: string[],
+    onSuccess?: OnSuccessCallback,
   ) => {
     setLoading(true);
     try {
@@ -18,40 +22,49 @@ const useUpdateProduct = () => {
 
       if (!relatedProductsData || relatedProductsData.length === 0) {
         // Update the main product
-        const productResponse = await axiosInstance.post('/update-main-product', formData);
-        const item: { success: boolean, updatedProduct: any } = productResponse.data;
+        const productResponse = await axiosInstance.post(
+          "/update-main-product",
+          formData,
+        );
+        const item: { success: boolean; updatedProduct: unknown } =
+          productResponse.data;
 
         if (item.success) {
           setSuccess(true);
           if (onSuccess) onSuccess(item.updatedProduct);
         } else {
-          setError('Error updating product');
+          setError("Error updating product");
         }
       } else {
         // Update related products
         const updateData = {
-          'ids': relatedProductsData,
-          'formData': formData
+          ids: relatedProductsData,
+          formData,
         };
 
         try {
-          console.log('updateData:', updateData);
-          await axiosInstance.post('/update-related-products', updateData);
+          console.log("updateData:", updateData);
+          await axiosInstance.post("/update-related-products", updateData);
           // ich muss zuerst die id's und dann die formData übergeben.
           setSuccess(true);
           if (onSuccess) onSuccess(formData);
-        } catch (error) {
-          console.error('Error updating related products:', error);
-          setError('Error updating related products');
+        } catch (updateError) {
+          console.error("Error updating related products:", updateError);
+          setError("Error updating related products");
         }
       }
-    } catch (err: any) {
-      if (err.response) {
-        setError(`Error ${err.response.status}: ${err.response.data.message || 'Unknown error'}`);
-      } else if (err.request) {
-        setError('No response received from the server');
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      if (axiosError.response) {
+        setError(
+          `Error ${axiosError.response.status}: ${axiosError.response.data?.message || "Unknown error"}`,
+        );
+      } else if (axiosError.request) {
+        setError("No response received from the server");
+      } else if (err instanceof Error) {
+        setError(err.message || "Unknown error");
       } else {
-        setError(err.message || 'Unknown error');
+        setError("Unknown error");
       }
     } finally {
       setLoading(false);

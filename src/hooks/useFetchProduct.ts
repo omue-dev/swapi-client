@@ -1,7 +1,7 @@
 // useFetchProduct.ts
-import { useState, useEffect } from 'react';
-import axiosInstance from '../utils/axiosInstance';
-import { Product } from '../interfaces/types';
+import { useState, useEffect } from "react";
+import axiosInstance from "../utils/axiosInstance";
+import { Product } from "../interfaces/types";
 
 const useFetchProduct = (id: string) => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -15,26 +15,28 @@ const useFetchProduct = (id: string) => {
         const item = response.data.product; // Anpassung hier, um das Produkt korrekt zu extrahieren
         const attributes = item.data.attributes || {};
         const customFields = attributes.customFields || {};
-        const gender = item.gender || attributes.gender || '';
+        const gender = item.gender || attributes.gender || "";
         const categoryIds = attributes.categoryIds || [];
         console.log(attributes);
 
         const productData: Product = {
           id: item.data.id,
-          name: attributes.name || '',
+          name: attributes.name || "",
           active: attributes.active || false,
-          description: attributes.description || '',
-          customSearchKeywords: attributes.customSearchKeywords || '',
-          ean: attributes.ean || '',
-          metaDescription: attributes.metaDescription || '',
-          metaTitle: attributes.metaTitle || '',
-          keywords: attributes.keywords || '',
+          description: attributes.description || "",
+          customSearchKeywords: attributes.customSearchKeywords || "",
+          ean: attributes.ean || "",
+          metaDescription: attributes.metaDescription || "",
+          metaTitle: attributes.metaTitle || "",
+          keywords: attributes.keywords || "",
           categoryIds: categoryIds,
-          productNumber: customFields.custom_add_product_attributes_oomodellcode || '',
-          shortText: customFields.custom_add_product_attributes_short_text || '',
+          productNumber:
+            customFields.custom_add_product_attributes_oomodellcode || "",
+          shortText:
+            customFields.custom_add_product_attributes_short_text || "",
           stock: attributes.stock || 0,
           gender,
-          status: '',
+          status: "",
           hasContent: false,
         };
 
@@ -43,7 +45,7 @@ const useFetchProduct = (id: string) => {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('An unknown error occurred');
+          setError("An unknown error occurred");
         }
       } finally {
         setLoading(false);
@@ -53,7 +55,7 @@ const useFetchProduct = (id: string) => {
     if (id) {
       fetchProduct();
     } else {
-      setError('No product ID provided');
+      setError("No product ID provided");
       setLoading(false);
     }
   }, [id]);
