@@ -8,12 +8,14 @@ import {
   CircularProgress,
   Button,
   Box,
+  MenuItem,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { green, red } from "@mui/material/colors";
 import ClearIcon from "@mui/icons-material/Clear";
 import useFetchInitialProducts from "../hooks/useFetchInitialProducts";
+import useFetchManufacturers from "../hooks/useFetchManufacturers";
 import debounce from "lodash.debounce";
 
 const Home: React.FC = () => {
@@ -31,6 +33,8 @@ const Home: React.FC = () => {
     setManufacturerIdFilter,
     fetchInitialProducts,
   } = useFetchInitialProducts();
+  const { manufacturers, loading: manufacturersLoading } =
+    useFetchManufacturers();
 
   const [selectedManufacturer, setSelectedManufacturer] = useState<
     string | null
@@ -46,8 +50,8 @@ const Home: React.FC = () => {
   useEffect(() => {
     const storedManufacturerId = window.localStorage.getItem("manufacturerId");
     if (storedManufacturerId) {
-      setManufacturerIdFilter(storedManufacturerId);
       setSelectedManufacturer(storedManufacturerId);
+      setManufacturerIdFilter(storedManufacturerId);
     }
   }, [setManufacturerIdFilter]);
 
@@ -63,6 +67,20 @@ const Home: React.FC = () => {
     fetchInitialProducts("");
   };
 
+  const handleManufacturerSelect = (
+    // eslint-disable-next-line no-undef
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const manufacturerId = event.target.value || null;
+    setSelectedManufacturer(manufacturerId);
+    setManufacturerIdFilter(manufacturerId);
+    if (manufacturerId) {
+      window.localStorage.setItem("manufacturerId", manufacturerId);
+    } else {
+      window.localStorage.removeItem("manufacturerId");
+    }
+  };
+
   const handleManufacturerClick = (manufacturerId: string) => {
     console.log("Manufacturer clicked:", manufacturerId); // Log the manufacturerId
     setManufacturerIdFilter(manufacturerId);
@@ -76,40 +94,62 @@ const Home: React.FC = () => {
     setManufacturerIdFilter(null);
     setSelectedManufacturer(null);
     window.localStorage.removeItem("manufacturerId");
-    fetchInitialProducts(searchTerm); // Fetch products without manufacturer filter
   };
 
   return (
     <div>
-      <TextField
-        label="Search"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        InputProps={{
-          endAdornment: searchTerm && (
-            <InputAdornment position="end">
-              <IconButton onClick={handleClearSearch}>
-                <ClearIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-      {selectedManufacturer && (
-        <Box display="flex" alignItems="center" mb={2}>
+      <Box
+        display="flex"
+        gap={2}
+        alignItems="center"
+        flexWrap="wrap"
+        marginBottom={selectedManufacturer ? 0 : 2}
+      >
+        <TextField
+          label="Search"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          variant="outlined"
+          fullWidth={!selectedManufacturer}
+          sx={{ minWidth: selectedManufacturer ? 240 : undefined, flex: 1 }}
+          InputProps={{
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton onClick={handleClearSearch}>
+                  <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        <TextField
+          select
+          label="Filter by manufacturer"
+          value={selectedManufacturer || ""}
+          onChange={handleManufacturerSelect}
+          variant="outlined"
+          fullWidth={false}
+          sx={{ minWidth: 260, flex: 1 }}
+          disabled={manufacturersLoading}
+        >
+          <MenuItem value="">All manufacturers</MenuItem>
+          {manufacturers.map((m) => (
+            <MenuItem key={m.id} value={m.id}>
+              {m.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        {selectedManufacturer && (
           <Button
             onClick={handleClearManufacturerFilter}
             variant="outlined"
             color="secondary"
-            style={{ marginRight: "10px" }}
+            sx={{ whiteSpace: "nowrap" }}
           >
-            Clear Manufacturer Filter
+            Clear Filter
           </Button>
-        </Box>
-      )}
+        )}
+      </Box>
       {loading ? (
         <div
           style={{

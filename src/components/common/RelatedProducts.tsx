@@ -64,22 +64,35 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
           }
           label="Select All"
         />
-        {relatedProducts.map((product) => (
-          <Box key={product.id} display="flex" alignItems="center">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={selectedRelatedProducts.includes(product.id)}
-                  onChange={() => handleProductChange(product.id)}
-                />
-              }
-              label={product.name}
-            />
-            {product.description && (
-              <DescriptionIcon style={{ marginLeft: 8 }} />
-            )}
-          </Box>
-        ))}
+        {relatedProducts.map((product) => {
+          const color = product.color?.trim();
+          const nameIncludesColor =
+            color &&
+            color.length > 0 &&
+            product.name.toLowerCase().includes(color.toLowerCase());
+          const nameHasComma = product.name.includes(",");
+          const label =
+            color && color.length > 0 && !nameIncludesColor && !nameHasComma
+              ? `${product.name}, ${color}`
+              : product.name;
+
+          return (
+            <Box key={product.id} display="flex" alignItems="center">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedRelatedProducts.includes(product.id)}
+                    onChange={() => handleProductChange(product.id)}
+                  />
+                }
+                label={label}
+              />
+              {product.description && (
+                <DescriptionIcon style={{ marginLeft: 8 }} />
+              )}
+            </Box>
+          );
+        })}
       </FormGroup>
       <Button variant="contained" onClick={handleAdoptContent}>
         Adopt Content

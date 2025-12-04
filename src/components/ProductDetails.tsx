@@ -64,16 +64,33 @@ const ProductDetails: React.FC = () => {
   const getFormData = (product: Product) => {
     const {
       id = "",
+      name = "",
       description = "",
       metaDescription = "",
       metaTitle = "",
       keywords = "",
       shortText = "",
       gender = "",
+      color = "",
     } = product || {};
+
+    const trimmedColor = color?.trim();
+    const nameIncludesColor =
+      trimmedColor &&
+      trimmedColor.length > 0 &&
+      name.toLowerCase().includes(trimmedColor.toLowerCase());
+    const hasCommaInName = name.includes(",");
+    const nameWithColor =
+      trimmedColor &&
+      trimmedColor.length > 0 &&
+      !nameIncludesColor &&
+      !hasCommaInName
+        ? `${name}, ${trimmedColor}`
+        : name;
 
     return {
       id,
+      name: nameWithColor,
       description,
       metaDescription,
       metaTitle,
@@ -90,7 +107,23 @@ const ProductDetails: React.FC = () => {
     if (!product) return;
     const formData = getFormData(product);
 
-    const relatedProductsData = selectedRelatedProducts;
+    const buildNameWithColor = (name: string, color?: string | null) => {
+      const trimmedColor = color?.trim();
+      if (!trimmedColor) return name;
+      const hasComma = name.includes(",");
+      const hasColor =
+        trimmedColor.length > 0 &&
+        name.toLowerCase().includes(trimmedColor.toLowerCase());
+      return hasComma || hasColor ? name : `${name}, ${trimmedColor}`;
+    };
+
+    const relatedProductsData = selectedRelatedProducts.map((id) => {
+      const rp = relatedProducts.find((p) => p.id === id);
+      const nameWithColor = rp
+        ? buildNameWithColor(rp.name || "", rp.color || null)
+        : undefined;
+      return { id, name: nameWithColor };
+    });
 
     try {
       setError(null);
@@ -175,10 +208,24 @@ const ProductDetails: React.FC = () => {
   if (productLoading || relatedProductsLoading)
     return <Typography>Loading...</Typography>;
 
+  const trimmedHeadlineColor = product?.color?.trim() || "";
+  const headlineName = product?.name || "";
+  const headlineHasColor =
+    trimmedHeadlineColor.length > 0 &&
+    headlineName.toLowerCase().includes(trimmedHeadlineColor.toLowerCase());
+  const headlineDisplayName =
+    trimmedHeadlineColor.length > 0 && !headlineHasColor
+      ? `${headlineName}, ${trimmedHeadlineColor}`
+      : headlineName;
+  const headlineBase = [product?.productNumber, headlineDisplayName]
+    .filter(Boolean)
+    .join(" - ");
+  const headline = headlineBase;
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        {product?.productNumber} - {product?.name}
+        {headline}
       </Typography>
       <form onSubmit={handleSave}>
         <Grid container spacing={2}>

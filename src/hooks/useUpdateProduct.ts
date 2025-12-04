@@ -3,6 +3,7 @@ import type { AxiosError } from "axios";
 import axiosInstance from "../utils/axiosInstance";
 
 type UpdateFormData = Record<string, unknown>;
+type RelatedProductUpdate = { id: string; name?: string };
 type OnSuccessCallback = (updatedProduct: unknown) => void;
 
 const useUpdateProduct = () => {
@@ -12,7 +13,7 @@ const useUpdateProduct = () => {
 
   const updateProduct = async (
     formData: UpdateFormData,
-    relatedProductsData: string[],
+    relatedProductsUpdates: RelatedProductUpdate[],
     onSuccess?: OnSuccessCallback,
   ) => {
     setLoading(true);
@@ -20,7 +21,7 @@ const useUpdateProduct = () => {
       setError(null);
       setSuccess(false);
 
-      if (!relatedProductsData || relatedProductsData.length === 0) {
+      if (!relatedProductsUpdates || relatedProductsUpdates.length === 0) {
         // Update the main product
         const productResponse = await axiosInstance.post(
           "/update-main-product",
@@ -36,10 +37,12 @@ const useUpdateProduct = () => {
           setError("Error updating product");
         }
       } else {
-        // Update related products
+        // Update related products: avoid overwriting their names unless provided per product
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { name: _discardName, ...restFormData } = formData;
         const updateData = {
-          ids: relatedProductsData,
-          formData,
+          updates: relatedProductsUpdates,
+          formData: restFormData,
         };
 
         try {
