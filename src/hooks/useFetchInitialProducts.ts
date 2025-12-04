@@ -21,6 +21,7 @@ type RawProduct = {
     metaDescription?: string | null;
     metaTitle?: string | null;
     keywords?: string | null;
+    color?: string | null;
     customFields?: {
       custom_add_product_attributes_short_text?: string | null;
     };
@@ -59,16 +60,16 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
       setLoading(true);
       try {
         const endpoint = search ? "/search-products" : "/products";
-        /*console.log("Fetching products with filters:", {
-        searchTerm: search,
-        page: paginationModel.page + 1,
-        limit: paginationModel.pageSize,
-        sortField: sortModel[0]?.field || 'name',
-        sortDirection: sortModel[0]?.sort || 'asc',
-        filters: filterModel.items,
-        manufacturerId: manufacturerIdFilter,
-      });
-      */
+        console.log("🔎 Fetching products with filters:", {
+          endpoint,
+          searchTerm: search,
+          page: paginationModel.page + 1,
+          limit: paginationModel.pageSize,
+          sortField: sortModel[0]?.field || "name",
+          sortDirection: sortModel[0]?.sort || "asc",
+          filters: filterModel.items,
+          manufacturerId: manufacturerIdFilter,
+        });
 
         const response = await axiosInstance.post(endpoint, {
           searchTerm: search,
@@ -80,7 +81,11 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
           manufacturerId: manufacturerIdFilter, // Add this line
         });
 
-        //console.log("API response:", response.data);
+        console.log("📦 Products API response:", {
+          endpoint,
+          totalProducts: (response.data as ProductsResponse)?.totalProducts,
+          productsLength: (response.data as ProductsResponse)?.products?.length,
+        });
 
         const { products, totalProducts } = response.data as ProductsResponse;
 
@@ -112,6 +117,7 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
                 attributes.customFields
                   ?.custom_add_product_attributes_short_text,
             ),
+            color: (item as any)?.attributes?.color || null,
           } as Product;
         });
 

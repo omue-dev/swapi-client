@@ -18,6 +18,7 @@ type ApiProductAttributes = {
   hasContent?: boolean;
   gender?: string;
   shortText?: string;
+  color?: string | null;
 };
 
 type ApiProduct = {
@@ -37,6 +38,7 @@ type ApiProduct = {
   stock?: number;
   status?: string;
   hasContent?: boolean;
+  color?: string | null;
   customFields?: Record<string, string>;
   data?: {
     id?: string;
@@ -56,6 +58,7 @@ const mapApiProductToProduct = (item: ApiProduct): Product => {
 
   const gender = item?.gender || attributes.gender || "";
   const categoryIds = attributes.categoryIds || item?.categoryIds || [];
+  const color = attributes.color || item?.color || null;
 
   return {
     id: item?.data?.id || item?.id || "",
@@ -80,6 +83,7 @@ const mapApiProductToProduct = (item: ApiProduct): Product => {
       "",
     stock: attributes.stock || item?.stock || 0,
     gender,
+    color,
     status: attributes.status || item?.status || "",
     hasContent: attributes.hasContent || item?.hasContent || false,
   };

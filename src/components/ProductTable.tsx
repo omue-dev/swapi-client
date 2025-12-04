@@ -5,7 +5,7 @@ import {
   GridPaginationModel,
   GridSortModel,
 } from "@mui/x-data-grid";
-import { Box } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ProductTableProps } from "../interfaces/types";
 
@@ -21,6 +21,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
   onManufacturerClick,
 }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleProductClick = (id: string) => {
     navigate(`/product/${id}`);
@@ -35,12 +36,13 @@ const ProductTable: React.FC<ProductTableProps> = ({
       renderCell: (params) => (
         <span
           onClick={() => handleProductClick(params.row.id)}
-          style={{ cursor: "pointer", color: "blue" }}
+          style={{ cursor: "pointer", color: theme.palette.primary.main }}
         >
           {params.value}
         </span>
       ),
     },
+    { field: "color", headerName: "Color", width: 180 },
     { field: "stock", headerName: "Stock", width: 100 },
     { field: "updatedAt", headerName: "Updated At", width: 200 },
     {
@@ -51,7 +53,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
       renderCell: (params) => (
         <span
           onClick={() => onManufacturerClick(params.row.manufacturerId)}
-          style={{ cursor: "pointer", color: "blue" }}
+          style={{ cursor: "pointer", color: theme.palette.primary.main }}
         >
           {params.value}
         </span>
@@ -83,12 +85,23 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
   return (
     <Box style={{ height: 632, width: "100%" }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={1}
+      >
+        <Typography variant="subtitle1" fontWeight={600}>
+          Total products: {totalProducts}
+        </Typography>
+      </Box>
       <DataGrid
         rows={products}
         columns={columns}
         paginationModel={paginationModel}
         rowCount={totalProducts}
         paginationMode="server"
+        pagination
         onPaginationModelChange={handlePaginationModelChange}
         pageSizeOptions={[10, 25, 50, 100]}
         sortModel={sortModel}

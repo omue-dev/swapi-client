@@ -31,13 +31,16 @@ const useFetchProduct = (id: string) => {
           keywords: attributes.keywords || "",
           categoryIds: categoryIds,
           productNumber:
-            customFields.custom_add_product_attributes_oomodellcode || "",
+            attributes.productNumber ||
+            customFields.custom_add_product_attributes_oomodellcode ||
+            "",
           shortText:
             customFields.custom_add_product_attributes_short_text || "",
           stock: attributes.stock || 0,
           gender,
           status: "",
           hasContent: false,
+          color: attributes.color || null,
         };
 
         setProduct(productData);

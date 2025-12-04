@@ -25,6 +25,7 @@ export interface Product {
   manufacturer?: string;
   status: string;
   hasContent: boolean;
+  color?: string | null;
 }
 
 export interface ProductTableProps {
