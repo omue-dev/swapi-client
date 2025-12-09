@@ -1,0 +1,31 @@
+@use "./variables";
+
+@mixin card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+@mixin ghost {
+  background: var(--ghost);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+@mixin pill {
+  @include flex-center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}

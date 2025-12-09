@@ -59,10 +59,7 @@ const Breadcrumbs: React.FC = () => {
   });
 
   return (
-    <MUIBreadcrumbs
-      aria-label="breadcrumb"
-      style={{ display: "flex", alignItems: "center", marginTop: "20px" }}
-    >
+    <MUIBreadcrumbs aria-label="breadcrumb" className="breadcrumbs">
       {breadcrumbItems}
     </MUIBreadcrumbs>
   );

@@ -1,65 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import {
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
-  Container,
-  Box,
-} from "@mui/material";
+import { createTheme, ThemeProvider, CssBaseline, Box } from "@mui/material";
 import Navbar from "./components/Navbar";
 import AppRoutes from "./routes";
 import Breadcrumbs from "./components/Breadcrumbs";
-import "./styles/App.css";
+import "./styles/App.scss";
 import { lightTheme, darkTheme } from "./theme";
+import Topbar from "./components/Topbar";
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => !prev);
+  };
+
   const theme = createTheme(isDarkMode ? darkTheme : lightTheme);
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      isDarkMode ? "dark" : "light",
+    );
+  }, [isDarkMode]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Box
-          className="layout"
-          sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-        >
-          <Box component="header" className="header">
-            <Navbar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-          </Box>
-          <Box
-            component="main"
-            className="content"
-            sx={{ flexGrow: 1, padding: 0 }}
-          >
-            {/* Container with adjusted padding */}
-            <Container
-              maxWidth={false} // Removes the maxWidth limit
-              sx={{
-                paddingLeft: "0px",
-                paddingRight: "0px",
-                margin: "0",
-                width: "100%",
-              }} // Ensures full width without padding
-            >
+        <Box className={`app-shell ${isSidebarCollapsed ? "collapsed" : ""}`}>
+          <Navbar
+            isDarkMode={isDarkMode}
+            toggleDarkMode={toggleDarkMode}
+            isCollapsed={isSidebarCollapsed}
+          />
+          <Box className="main-area">
+            <Topbar
+              isDarkMode={isDarkMode}
+              toggleDarkMode={toggleDarkMode}
+              toggleSidebar={toggleSidebar}
+              isSidebarCollapsed={isSidebarCollapsed}
+            />
+            <Box className="content-area">
               <Breadcrumbs />
               <Box className="content-div">
                 <AppRoutes />
               </Box>
-            </Container>
-          </Box>
-          <Box
-            component="footer"
-            className="footer"
-            sx={{ py: 3, textAlign: "center" }}
-          >
-            swapi ©{new Date().getFullYear()} Created by cocapi
+              <Box component="footer" className="footer">
+                swapi ©{new Date().getFullYear()} Created by cocapi
+              </Box>
+            </Box>
           </Box>
         </Box>
       </Router>

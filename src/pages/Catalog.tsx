@@ -9,6 +9,8 @@ import {
   Button,
   Box,
   MenuItem,
+  Chip,
+  Typography,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -97,96 +99,118 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div>
-      <Box
-        display="flex"
-        gap={2}
-        alignItems="center"
-        flexWrap="wrap"
-        marginBottom={selectedManufacturer ? 0 : 2}
-      >
-        <TextField
-          label="Search"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          variant="outlined"
-          fullWidth={!selectedManufacturer}
-          sx={{ minWidth: selectedManufacturer ? 240 : undefined, flex: 1 }}
-          InputProps={{
-            endAdornment: searchTerm && (
-              <InputAdornment position="end">
-                <IconButton onClick={handleClearSearch}>
-                  <ClearIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-        <TextField
-          select
-          label="Filter by manufacturer"
-          value={selectedManufacturer || ""}
-          onChange={handleManufacturerSelect}
-          variant="outlined"
-          fullWidth={false}
-          sx={{ minWidth: 260, flex: 1 }}
-          disabled={manufacturersLoading}
-        >
-          <MenuItem value="">All manufacturers</MenuItem>
-          {manufacturers.map((m) => (
-            <MenuItem key={m.id} value={m.id}>
-              {m.name}
-            </MenuItem>
-          ))}
-        </TextField>
-        {selectedManufacturer && (
-          <Button
-            onClick={handleClearManufacturerFilter}
-            variant="outlined"
-            color="secondary"
-            sx={{ whiteSpace: "nowrap" }}
-          >
-            Clear Filter
-          </Button>
-        )}
-      </Box>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
-          <CircularProgress />
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Produktpflege</p>
+          <h1>Katalog</h1>
+          <p className="muted">
+            Finde, filtere und kuratiere deine Produkte mit einem klaren,
+            schnellen UI.
+          </p>
         </div>
-      ) : error ? (
-        <div>Error: {error.message}</div>
-      ) : (
-        <ProductTable
-          products={products}
-          totalProducts={totalProducts}
-          paginationModel={paginationModel}
-          setPaginationModel={setPaginationModel}
-          sortModel={sortModel}
-          setSortModel={setSortModel}
-          renderStatusIcon={(status: string) => {
-            return status === "Active" ? (
-              <CheckCircleIcon style={{ color: green[500] }} />
-            ) : (
-              <CancelIcon style={{ color: red[500] }} />
-            );
-          }}
-          renderProcessedIcon={(processed: boolean) => {
-            return processed === true ? (
-              <CheckCircleIcon style={{ color: green[500] }} />
-            ) : (
-              <CancelIcon style={{ color: red[500] }} />
-            );
-          }}
-          onManufacturerClick={handleManufacturerClick} // Add this line
-        />
-      )}
+        <div className="header-actions">
+          <button className="pill primary">+ Produkt</button>
+          <button className="pill ghost">Exportieren</button>
+        </div>
+      </div>
+
+      <div className="panel">
+        <Box className="panel-head">
+          <Typography variant="subtitle1" fontWeight={700}>
+            Filter & Suche
+          </Typography>
+          <Chip label={`${totalProducts ?? 0} Produkte`} color="success" />
+        </Box>
+        <Box
+          display="flex"
+          gap={2}
+          alignItems="center"
+          flexWrap="wrap"
+          marginBottom={selectedManufacturer ? 0 : 2}
+        >
+          <TextField
+            label="Search"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            variant="outlined"
+            fullWidth={!selectedManufacturer}
+            size="small"
+            sx={{ minWidth: selectedManufacturer ? 240 : undefined, flex: 1 }}
+            InputProps={{
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleClearSearch}>
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            select
+            label="Filter by manufacturer"
+            value={selectedManufacturer || ""}
+            onChange={handleManufacturerSelect}
+            variant="outlined"
+            fullWidth={false}
+            size="small"
+            sx={{ minWidth: 260, flex: 1 }}
+            disabled={manufacturersLoading}
+          >
+            <MenuItem value="">All manufacturers</MenuItem>
+            {manufacturers.map((m) => (
+              <MenuItem key={m.id} value={m.id}>
+                {m.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          {selectedManufacturer && (
+            <Button
+              onClick={handleClearManufacturerFilter}
+              variant="outlined"
+              color="secondary"
+              sx={{ whiteSpace: "nowrap" }}
+            >
+              Clear Filter
+            </Button>
+          )}
+        </Box>
+      </div>
+
+      <div className="panel datagrid-card">
+        {loading ? (
+          <div className="centered">
+            <CircularProgress />
+          </div>
+        ) : error ? (
+          <div>Error: {error.message}</div>
+        ) : (
+          <ProductTable
+            products={products}
+            totalProducts={totalProducts}
+            paginationModel={paginationModel}
+            setPaginationModel={setPaginationModel}
+            sortModel={sortModel}
+            setSortModel={setSortModel}
+            renderStatusIcon={(status: string) => {
+              return status === "Active" ? (
+                <CheckCircleIcon style={{ color: green[500] }} />
+              ) : (
+                <CancelIcon style={{ color: red[500] }} />
+              );
+            }}
+            renderProcessedIcon={(processed: boolean) => {
+              return processed === true ? (
+                <CheckCircleIcon style={{ color: green[500] }} />
+              ) : (
+                <CancelIcon style={{ color: red[500] }} />
+              );
+            }}
+            onManufacturerClick={handleManufacturerClick} // Add this line
+          />
+        )}
+      </div>
     </div>
   );
 };
