@@ -2,7 +2,8 @@ import axios from "axios";
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5173/api", // Update the baseURL if needed
+  // Use relative baseURL so it follows the running frontend port (dev/prod) and hits the Vite proxy.
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },

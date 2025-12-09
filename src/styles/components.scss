@@ -1,0 +1,347 @@
+@use "./mixins" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.content-div {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 4px 0;
+    font-size: 32px;
+    font-weight: 800;
+  }
+
+  .eyebrow {
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--muted);
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  @include pill;
+
+  &.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: #fff;
+    border: none;
+  }
+
+  &.ghost {
+    background: var(--ghost);
+  }
+
+  &.danger {
+    background: linear-gradient(135deg, #f43f5e, #b91c1c);
+    color: #fff;
+    border: none;
+  }
+
+  &.wide {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.panel {
+  @include card;
+  padding: 16px 18px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 130px;
+
+  &.accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: #fff;
+
+    .muted {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .soft-chip {
+      background: rgba(255, 255, 255, 0.18) !important;
+      color: #fff !important;
+    }
+  }
+}
+
+.stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.soft-chip {
+  background: rgba(15, 169, 104, 0.1) !important;
+  color: var(--accent-strong) !important;
+  border-radius: 10px !important;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.activity-bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  align-items: end;
+  margin-top: 10px;
+
+  .bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bar-fill {
+    width: 100%;
+    min-width: 18px;
+    border-radius: 10px 10px 4px 4px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  }
+}
+
+.reminder-card {
+  background: radial-gradient(circle at 20% 20%, rgba(15, 169, 104, 0.1), var(--ghost));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card {
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+
+    .muted {
+      display: block;
+      font-size: 13px;
+    }
+  }
+
+  .status-active {
+    background: rgba(15, 169, 104, 0.1) !important;
+    color: var(--accent-strong) !important;
+  }
+
+  .status-warning {
+    background: rgba(251, 191, 36, 0.18) !important;
+    color: #b45309 !important;
+  }
+
+  .status-success {
+    background: rgba(52, 211, 153, 0.2) !important;
+    color: #0f7c4a !important;
+  }
+
+  .status-info {
+    background: rgba(59, 130, 246, 0.12) !important;
+    color: #1d4ed8 !important;
+  }
+}
+
+.team-card {
+  .team-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .team-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+}
+
+.progress-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .progress-visual {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .donut {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0deg 240deg, var(--accent-strong) 240deg 295deg, #e5e7eb 295deg 360deg);
+    display: grid;
+    place-items: center;
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      background: var(--card);
+      border-radius: 50%;
+    }
+  }
+
+  .donut-inner {
+    position: relative;
+    text-align: center;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 8px 14px;
+    align-items: center;
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-flex;
+
+      &.green {
+        background: var(--accent);
+      }
+
+      &.dark {
+        background: var(--accent-strong);
+      }
+
+      &.muted-dot {
+        background: #d1d5db;
+      }
+    }
+  }
+}
+
+.time-card {
+  background: radial-gradient(circle at 20% 20%, rgba(15, 169, 104, 0.2), #062e1d);
+  color: #e7f6ef;
+
+  .panel-head {
+    color: #e7f6ef;
+  }
+
+  .time-display {
+    display: grid;
+    gap: 12px;
+
+    .time-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 22px;
+    }
+  }
+
+  .time-actions {
+    display: flex;
+    gap: 10px;
+
+    .pill {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  .time-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .muted {
+    color: rgba(231, 246, 239, 0.7);
+  }
+}
+
+.datagrid-card {
+  padding: 14px;
+
+  .MuiDataGrid-root {
+    border: none;
+    background: var(--data-surface);
+    color: var(--data-text);
+  }
+
+  .MuiDataGrid-columnHeaders {
+    background: var(--data-surface-alt);
+    border-bottom: 1px solid var(--border);
+    color: var(--data-text);
+  }
+
+  .MuiDataGrid-cell {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}

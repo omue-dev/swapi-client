@@ -1,0 +1,71 @@
+@use "sass:map";
+
+$font-stack: "Sora", "Helvetica Neue", sans-serif;
+
+$radius-lg: 22px;
+$radius-md: 16px;
+$radius-sm: 12px;
+
+$shadow-light: 0 15px 45px rgba(15, 23, 42, 0.08);
+$shadow-strong: 0 15px 45px rgba(0, 0, 0, 0.35);
+
+$theme-light: (
+  bg: #f3f6fb,
+  card: #ffffff,
+  text: #0f172a,
+  muted: #6b7280,
+  border: #e5e7eb,
+  accent: #0fa968,
+  accent-strong: #0b6b44,
+  ghost: #f8fafc,
+  data-surface: #ffffff,
+  data-surface-alt: #f3f6fb,
+  data-text: #0f172a,
+  topbar: #ffffff
+);
+
+$theme-dark: (
+  bg: #0c111d,
+  card: #111827,
+  text: #e5e7eb,
+  muted: #9ca3af,
+  border: #1f2937,
+  accent: #2dd29f,
+  accent-strong: #1aaa7a,
+  ghost: #0f172a,
+  data-surface: #0a0f1c,
+  data-surface-alt: #0f172a,
+  data-text: #e5e7eb,
+  topbar: #0f172a
+);
+
+@mixin theme-vars($theme, $shadow) {
+  --bg: #{map.get($theme, bg)};
+  --card: #{map.get($theme, card)};
+  --text: #{map.get($theme, text)};
+  --muted: #{map.get($theme, muted)};
+  --border: #{map.get($theme, border)};
+  --accent: #{map.get($theme, accent)};
+  --accent-strong: #{map.get($theme, accent-strong)};
+  --ghost: #{map.get($theme, ghost)};
+  --data-surface: #{map.get($theme, data-surface)};
+  --data-surface-alt: #{map.get($theme, data-surface-alt)};
+  --data-text: #{map.get($theme, data-text)};
+  --topbar: #{map.get($theme, topbar)};
+  --shadow: #{$shadow};
+  --radius-lg: #{$radius-lg};
+  --radius-md: #{$radius-md};
+  --radius-sm: #{$radius-sm};
+}
+
+:root {
+  @include theme-vars($theme-light, $shadow-light);
+}
+
+:root[data-theme="light"] {
+  @include theme-vars($theme-light, $shadow-light);
+}
+
+:root[data-theme="dark"] {
+  @include theme-vars($theme-dark, $shadow-strong);
+}
