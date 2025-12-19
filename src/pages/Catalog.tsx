@@ -35,8 +35,11 @@ const Home: React.FC = () => {
     setManufacturerIdFilter,
     fetchInitialProducts,
   } = useFetchInitialProducts();
-  const { manufacturers, loading: manufacturersLoading } =
-    useFetchManufacturers();
+  const {
+    manufacturers,
+    loading: manufacturersLoading,
+    error: manufacturersError,
+  } = useFetchManufacturers();
 
   const [selectedManufacturer, setSelectedManufacturer] = useState<
     string | null
@@ -50,12 +53,31 @@ const Home: React.FC = () => {
   );
 
   useEffect(() => {
+    if (manufacturersLoading) return;
+
     const storedManufacturerId = window.localStorage.getItem("manufacturerId");
-    if (storedManufacturerId) {
+    if (!storedManufacturerId) return;
+
+    const exists = manufacturers.some((m) => m.id === storedManufacturerId);
+    if (exists) {
       setSelectedManufacturer(storedManufacturerId);
       setManufacturerIdFilter(storedManufacturerId);
+      return;
     }
-  }, [setManufacturerIdFilter]);
+
+    if (manufacturers.length > 0) {
+      window.localStorage.removeItem("manufacturerId");
+      setSelectedManufacturer(null);
+      setManufacturerIdFilter(null);
+    }
+  }, [manufacturersLoading, manufacturers, setManufacturerIdFilter]);
+
+  const manufacturerSelectValue =
+    selectedManufacturer &&
+    !manufacturersLoading &&
+    manufacturers.some((m) => m.id === selectedManufacturer)
+      ? selectedManufacturer
+      : "";
 
   // eslint-disable-next-line no-undef
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,10 +131,6 @@ const Home: React.FC = () => {
             schnellen UI.
           </p>
         </div>
-        <div className="header-actions">
-          <button className="pill primary">+ Produkt</button>
-          <button className="pill ghost">Exportieren</button>
-        </div>
       </div>
 
       <div className="panel">
@@ -130,6 +148,8 @@ const Home: React.FC = () => {
           marginBottom={selectedManufacturer ? 0 : 2}
         >
           <TextField
+            id="catalog-search"
+            name="catalogSearch"
             label="Search"
             value={searchTerm}
             onChange={handleSearchChange}
@@ -149,14 +169,16 @@ const Home: React.FC = () => {
           />
           <TextField
             select
+            id="catalog-manufacturer"
+            name="manufacturerId"
             label="Filter by manufacturer"
-            value={selectedManufacturer || ""}
+            value={manufacturerSelectValue}
             onChange={handleManufacturerSelect}
             variant="outlined"
             fullWidth={false}
             size="small"
             sx={{ minWidth: 260, flex: 1 }}
-            disabled={manufacturersLoading}
+            disabled={manufacturersLoading || Boolean(manufacturersError)}
           >
             <MenuItem value="">All manufacturers</MenuItem>
             {manufacturers.map((m) => (
