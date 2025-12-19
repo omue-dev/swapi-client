@@ -12,9 +12,6 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
-import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
-import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -38,22 +35,6 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed }) => {
       label: "Katalog",
       icon: <StorefrontRoundedIcon />,
       to: "/catalog",
-      badge: "12",
-    },
-    {
-      label: "Future Workflow",
-      icon: <EventNoteRoundedIcon />,
-      disabled: true,
-    },
-    {
-      label: "Future Workflow",
-      icon: <InsightsRoundedIcon />,
-      disabled: true,
-    },
-    {
-      label: "Future Workflow",
-      icon: <PeopleAltRoundedIcon />,
-      disabled: true,
     },
   ];
 
@@ -98,14 +79,6 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed }) => {
               <>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.label} />
-                {item.badge && (
-                  <Chip
-                    label={item.badge}
-                    size="small"
-                    color="success"
-                    className="floating-chip"
-                  />
-                )}
               </>
             );
 
@@ -115,7 +88,6 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed }) => {
                 component={Link}
                 to={item.to}
                 selected={!!selected}
-                disabled={item.disabled}
                 className="sidebar-item"
               >
                 {content}
@@ -124,7 +96,6 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed }) => {
               <ListItemButton
                 key={item.label}
                 selected={!!selected}
-                disabled={item.disabled}
                 className="sidebar-item"
               >
                 {content}
