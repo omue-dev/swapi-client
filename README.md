@@ -14,6 +14,20 @@ git clone https://github.com/omue-dev/swapi-client.git
 cd swapi-client
 ```
 
+## Configuration
+
+Copy the example environment file and configure it:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_KEY` | API key for authenticating mutation requests (must match backend `API_KEY`) |
+
+The API key is required for product updates. It must match the `API_KEY` configured in the backend server.
+
 ## Development
 
 Install dependencies and start the development server:
