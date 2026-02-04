@@ -106,15 +106,12 @@ const Home: React.FC = () => {
   };
 
   const handleManufacturerClick = (manufacturerId: string) => {
-    console.log("Manufacturer clicked:", manufacturerId); // Log the manufacturerId
     setManufacturerIdFilter(manufacturerId);
     setSelectedManufacturer(manufacturerId);
     window.localStorage.setItem("manufacturerId", manufacturerId);
-    // No need to call fetchInitialProducts here, useEffect will handle it
   };
 
   const handleClearManufacturerFilter = () => {
-    console.log("Clearing manufacturer filter");
     setManufacturerIdFilter(null);
     setSelectedManufacturer(null);
     window.localStorage.removeItem("manufacturerId");

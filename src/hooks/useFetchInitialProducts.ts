@@ -127,7 +127,6 @@ const useFetchInitialProducts = (initialSearchTerm: string = "") => {
         setError(
           fetchError instanceof Error ? fetchError : new Error("Unknown error"),
         );
-        console.error("Error fetching products:", fetchError);
       } finally {
         setLoading(false);
       }

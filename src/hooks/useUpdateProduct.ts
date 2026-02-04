@@ -46,13 +46,10 @@ const useUpdateProduct = () => {
         };
 
         try {
-          console.log("updateData:", updateData);
           await axiosInstance.post("/update-related-products", updateData);
-          // ich muss zuerst die id's und dann die formData übergeben.
           setSuccess(true);
           if (onSuccess) onSuccess(formData);
-        } catch (updateError) {
-          console.error("Error updating related products:", updateError);
+        } catch {
           setError("Error updating related products");
         }
       }

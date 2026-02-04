@@ -19,7 +19,6 @@ const mapResponseToManufacturers = (
   data: ManufacturerResponse,
 ): Manufacturer[] => {
   if (!data?.data) {
-    console.error("Invalid data format:", data);
     return [];
   }
 
@@ -42,9 +41,8 @@ const useFetchManufacturers = () => {
         const response = await axiosInstance.post("/product-manufacturer");
         const manufacturersData = mapResponseToManufacturers(response.data);
         setManufacturers(manufacturersData);
-      } catch (err) {
+      } catch {
         setError("Error fetching manufacturers");
-        console.error("Error fetching manufacturers:", err);
       } finally {
         setLoading(false);
       }

@@ -15,9 +15,10 @@ const useFetchProduct = (id: string) => {
         const item = response.data.product; // Anpassung hier, um das Produkt korrekt zu extrahieren
         const attributes = item.data.attributes || {};
         const customFields = attributes.customFields || {};
-        const gender = item.gender || attributes.gender || "";
+        const rawGender = item.gender || attributes.gender || "";
+        // Map "Unbekannt" to empty string for select compatibility
+        const gender = rawGender === "Unbekannt" ? "" : rawGender;
         const categoryIds = attributes.categoryIds || [];
-        console.log(attributes);
 
         const productData: Product = {
           id: item.data.id,
